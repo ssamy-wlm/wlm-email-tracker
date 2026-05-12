@@ -1,0 +1,1919 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WebLight Media — Work Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --blue:#2E6DB4;--blue2:#235494;--blue3:#1a3f6f;
+  --yellow:#F5C400;--yellow2:#d9ae00;
+  --bg:#eef3fa;--surface:#fff;--s2:#f5f8fc;--s3:#e4ecf6;
+  --border:rgba(46,109,180,0.13);--border2:rgba(46,109,180,0.25);
+  --text:#0d1f35;--t2:#4a6080;--t3:#8fa5be;
+  --sans:'Nunito',sans-serif;--mono:'DM Mono',monospace;
+  --r:10px;--rl:16px;
+  --shadow:0 1px 3px rgba(46,109,180,0.09),0 4px 12px rgba(46,109,180,0.06);
+  --shadow-md:0 4px 20px rgba(46,109,180,0.18);
+  --red:#c62828;--orange:#e65100;--green:#2e7d32;--purple:#6a1b9a;
+}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14px;min-height:100vh}
+.shell{display:flex;height:100vh;overflow:hidden}
+
+/* SIDEBAR */
+.sidebar{width:232px;flex-shrink:0;background:var(--blue3);display:flex;flex-direction:column}
+.sb-logo{padding:16px 18px 14px;border-bottom:1px solid rgba(255,255,255,0.1)}
+.logo-row{display:flex;align-items:center;gap:10px}
+.logo-svg{width:40px;height:40px;flex-shrink:0}
+.logo-web{font-size:17px;font-weight:800;color:#fff}
+.logo-light{font-size:17px;font-weight:800;color:var(--yellow)}
+.logo-sub{font-size:9px;font-weight:700;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:2px;margin-top:1px}
+.ng{font-size:9px;text-transform:uppercase;letter-spacing:2px;color:rgba(255,255,255,0.3);padding:14px 18px 4px;font-weight:700}
+.ni{display:flex;align-items:center;gap:9px;padding:9px 18px;cursor:pointer;color:rgba(255,255,255,0.6);font-size:13px;font-weight:600;transition:all .15s;border-left:3px solid transparent}
+.ni:hover{color:#fff;background:rgba(255,255,255,0.07)}
+.ni.active{color:#fff;border-left-color:var(--yellow);background:rgba(255,255,255,0.12)}
+.ni svg{width:15px;height:15px;flex-shrink:0}
+.sb-bot{margin-top:auto;padding:12px 18px;border-top:1px solid rgba(255,255,255,0.08)}
+.api-pill{display:flex;align-items:center;gap:7px;font-size:10px;color:rgba(255,255,255,0.4);font-family:var(--mono)}
+.api-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.2);flex-shrink:0;transition:all .3s}
+.api-dot.on{background:#69f0ae;box-shadow:0 0 5px #69f0ae88}
+.sc{display:flex;align-items:center;gap:8px;padding:6px 18px;cursor:pointer;transition:background .15s}
+.sc:hover{background:rgba(255,255,255,0.06)}
+.sn{font-size:11px;color:rgba(255,255,255,0.65);flex:1;font-weight:600}
+.sk{font-size:9px;background:rgba(255,255,255,0.14);color:rgba(255,255,255,0.6);padding:1px 6px;border-radius:20px}
+.sw{font-size:11px;color:var(--yellow)}
+.sb-empty{font-size:11px;color:rgba(255,255,255,0.25);padding:6px 18px;font-style:italic}
+.sb-scroll{overflow-y:auto;flex:1;display:flex;flex-direction:column}
+
+/* MAIN */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{height:62px;background:var(--surface);border-bottom:1.5px solid var(--border);display:flex;align-items:center;padding:0 22px;gap:12px;flex-shrink:0;box-shadow:var(--shadow)}
+.page-title{font-size:15px;font-weight:800}
+.tr{display:flex;align-items:center;gap:8px;margin-left:auto}
+.filter-bar{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.content{flex:1;overflow-y:auto;padding:22px}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:5px;padding:8px 14px;border-radius:var(--r);border:1.5px solid var(--border2);background:var(--surface);color:var(--t2);font-size:12px;font-family:var(--sans);font-weight:700;cursor:pointer;transition:all .15s;white-space:nowrap}
+.btn:hover{background:var(--s2);border-color:var(--blue);color:var(--blue)}
+.btn-p{background:var(--blue);color:#fff;border-color:var(--blue)}
+.btn-p:hover{background:var(--blue2);color:#fff}
+.btn-y{background:var(--yellow);color:#0d1f35;border-color:var(--yellow)}
+.btn-y:hover{background:var(--yellow2);color:#0d1f35}
+.btn-sm{padding:5px 10px;font-size:11px}
+.btn-red{background:#ffebee;color:var(--red);border-color:rgba(198,40,40,.25)}
+.btn-red:hover{background:#ffcdd2}
+
+select,input[type=text],input[type=date],input[type=password],textarea{
+  background:var(--surface);border:1.5px solid var(--border2);color:var(--text);
+  font-family:var(--sans);font-size:13px;border-radius:var(--r);padding:7px 11px;outline:none;transition:border .15s
+}
+select:focus,input:focus,textarea:focus{border-color:var(--blue)}
+
+/* NOTIF PANEL */
+.notif-panel{background:var(--surface);border-radius:var(--rl);box-shadow:var(--shadow);border-left:4px solid var(--yellow);margin-bottom:20px;overflow:hidden}
+.notif-hdr{display:flex;align-items:center;justify-content:space-between;padding:13px 18px;background:#fffde7;border-bottom:1px solid rgba(245,196,0,.2);cursor:pointer;user-select:none}
+.notif-title{font-size:13px;font-weight:800;color:#7a6000;display:flex;align-items:center;gap:8px}
+.notif-badge{background:var(--yellow);color:#0d1f35;font-size:10px;font-weight:800;padding:2px 8px;border-radius:20px}
+.notif-body{padding:14px 18px;display:none}
+.notif-body.open{display:block}
+.ni2{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border-radius:var(--r);margin-bottom:8px;font-size:12px;line-height:1.6}
+.ni2:last-child{margin-bottom:0}
+.ni2.urgent{background:#ffebee;border-left:3px solid var(--red)}
+.ni2.warn{background:#fff3e0;border-left:3px solid var(--orange)}
+.ni2.info{background:#e3f0fc;border-left:3px solid var(--blue)}
+.ni2.flag{background:#f3e5f5;border-left:3px solid var(--purple)}
+.ni-icon{font-size:16px;flex-shrink:0;margin-top:1px}
+.ni-text strong{font-weight:800;display:block;margin-bottom:2px}
+.ni-action{font-size:11px;color:var(--blue);font-weight:700;cursor:pointer;margin-top:4px;display:inline-block;text-decoration:underline}
+
+/* STATS */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.sc2{background:var(--surface);border-radius:var(--rl);padding:16px 18px;box-shadow:var(--shadow);border-left:4px solid var(--border)}
+.sc2.cb{border-left-color:var(--blue)}.sc2.cy{border-left-color:var(--yellow)}.sc2.cr{border-left-color:var(--red)}.sc2.cg{border-left-color:var(--green)}
+.sl{font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:7px}
+.sv{font-size:30px;font-weight:800;font-family:var(--mono);letter-spacing:-1.5px}
+.ss{font-size:11px;color:var(--t3);margin-top:3px}
+
+/* EMPTY STATE */
+.empty-state{background:var(--surface);border-radius:var(--rl);box-shadow:var(--shadow);padding:60px 40px;text-align:center;margin-bottom:20px}
+.es-icon{font-size:48px;margin-bottom:16px}
+.es-title{font-size:18px;font-weight:800;margin-bottom:8px}
+.es-sub{font-size:13px;color:var(--t2);line-height:1.7;max-width:440px;margin:0 auto 24px}
+
+/* CAT TABS */
+.cat-tabs{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap}
+.ct{padding:6px 13px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;border:1.5px solid var(--border2);color:var(--t2);background:var(--surface);transition:all .15s}
+.ct:hover{border-color:var(--blue);color:var(--blue)}
+.ct.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+.sh{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.st{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:1.5px}
+
+/* TABLE */
+.tw{background:var(--surface);border-radius:var(--rl);box-shadow:var(--shadow);overflow:hidden;margin-bottom:22px}
+table{width:100%;border-collapse:collapse}
+th{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--t3);padding:11px 15px;text-align:left;border-bottom:1.5px solid var(--border);background:var(--s2);font-weight:700}
+td{padding:11px 15px;border-bottom:1px solid var(--border);font-size:13px;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--s2)}
+.er td{text-align:center;color:var(--t3);padding:48px}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;gap:3px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap}
+.br{background:#ffebee;color:var(--red)}.bo{background:#fff3e0;color:var(--orange)}
+.bg{background:#e8f5e9;color:var(--green)}.bb{background:#e3f0fc;color:var(--blue)}
+.by{background:#fffde7;color:#7a6000}.bgr{background:var(--s3);color:var(--t2)}
+.bpu{background:#f3e5f5;color:var(--purple)}
+.cb2{font-size:10px;padding:2px 8px;border-radius:20px;font-weight:700}
+.cb-cu{background:#e3f0fc;color:var(--blue)}.cb-ns{background:#fffde7;color:#7a6000}
+.cb-sl{background:#e8f5e9;color:var(--green)}.cb-fu{background:#fff3e0;color:var(--orange)}
+.cb-tk{background:#f3e5f5;color:var(--purple)}
+.flag-badge{background:#ffebee;color:var(--red);font-size:10px;padding:2px 8px;border-radius:20px;font-weight:800;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+
+/* AVATAR */
+.av{width:26px;height:26px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;flex-shrink:0}
+.ac{display:flex;align-items:center;gap:8px}
+.pdot{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:5px}
+.ab{display:flex;gap:4px}
+.ib{width:28px;height:28px;border-radius:7px;border:1.5px solid var(--border);background:transparent;color:var(--t2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;transition:all .15s}
+.ib:hover{background:var(--s2);color:var(--blue);border-color:var(--blue)}
+.ib.del:hover{color:var(--red);border-color:rgba(198,40,40,.3);background:#ffebee}
+
+/* THREAD LINK */
+.tlink{font-size:10px;color:var(--blue);font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:3px;background:#e3f0fc;padding:2px 7px;border-radius:20px;margin-top:3px}
+.tlink:hover{background:#bbdefb}
+.tcount{font-size:9px;background:var(--blue);color:#fff;padding:1px 5px;border-radius:20px}
+
+/* CLIENTS VIEW */
+.clients-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;margin-bottom:22px}
+.client-card{background:var(--surface);border-radius:var(--rl);box-shadow:var(--shadow);padding:16px;border-top:3px solid var(--blue);cursor:pointer;transition:all .15s}
+.client-card:hover{box-shadow:var(--shadow-md);transform:translateY(-1px)}
+.client-card.has-tasks{border-top-color:var(--yellow)}
+.cc-name{font-size:13px;font-weight:800;margin-bottom:3px}
+.cc-contact{font-size:11px;color:var(--t2);margin-bottom:2px}
+.cc-email{font-size:10px;color:var(--t3);font-family:var(--mono)}
+.cc-tags{display:flex;gap:4px;flex-wrap:wrap;margin-top:8px}
+.service-tag{font-size:9px;background:var(--s3);color:var(--t2);padding:2px 6px;border-radius:20px;font-weight:700}
+
+/* SERVICES VIEW */
+.svc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-bottom:22px}
+.svc-card{background:var(--surface);border-radius:var(--r);box-shadow:var(--shadow);padding:12px 14px}
+.svc-cat{font-size:10px;font-weight:800;color:var(--blue);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+.svc-item{font-size:12px;color:var(--t2);padding:2px 0;border-bottom:1px solid var(--border)}
+.svc-item:last-child{border-bottom:none}
+
+/* CALENDAR */
+.calw{background:var(--surface);border-radius:var(--rl);box-shadow:var(--shadow);overflow:hidden}
+.calhdr{display:flex;align-items:center;justify-content:space-between;padding:15px 20px;border-bottom:1.5px solid var(--border);background:var(--s2)}
+.calm{font-size:15px;font-weight:800}
+.cvtabs{display:flex;gap:3px;background:var(--s3);border-radius:8px;padding:3px}
+.cvt{padding:5px 12px;border-radius:6px;font-size:12px;cursor:pointer;color:var(--t2);transition:all .15s;font-weight:700}
+.cvt.active{background:var(--blue);color:#fff}
+.calgrid{display:grid;grid-template-columns:repeat(7,1fr)}
+.caldh{text-align:center;padding:10px;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--t3);border-bottom:1.5px solid var(--border);font-weight:700}
+
+/* EMAIL CATEGORIES */
+.ecat-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 9px;border-radius:20px;font-size:10px;font-weight:800;white-space:nowrap;border:1.5px solid transparent}
+.ecat-manage-btn{font-size:11px;background:rgba(255,255,255,0.12);color:rgba(255,255,255,0.7);border:none;padding:4px 10px;border-radius:20px;cursor:pointer;font-family:var(--sans);font-weight:700;margin-left:auto}
+.ecat-manage-btn:hover{background:rgba(255,255,255,0.2);color:#fff}
+.cat-manage-modal{background:var(--surface);border-radius:var(--rl);width:480px;max-width:95vw;max-height:80vh;overflow-y:auto;box-shadow:var(--shadow-md)}
+.cat-row{display:flex;align-items:center;gap:10px;padding:9px 14px;border-radius:var(--r);background:var(--s2);margin-bottom:6px}
+.cat-swatch{width:18px;height:18px;border-radius:50%;flex-shrink:0;border:2px solid rgba(0,0,0,0.1)}
+.cat-label{font-size:13px;font-weight:700;flex:1}
+.cat-del{background:none;border:none;color:var(--t3);cursor:pointer;font-size:16px;padding:0 4px;line-height:1}
+.cat-del:hover{color:var(--red)}
+
+/* DRAG & DROP CALENDAR */
+.calcel.drag-over{background:#dbeafe !important;border:2px dashed var(--blue) !important;border-radius:8px}
+.calchip.dragging{opacity:0.4;transform:scale(0.95)}
+.calchip{cursor:grab}
+.calchip:active{cursor:grabbing}
+.drag-ghost{position:fixed;pointer-events:none;z-index:9999;background:var(--blue);color:#fff;padding:4px 10px;border-radius:8px;font-size:11px;font-weight:700;font-family:var(--sans);box-shadow:var(--shadow-md);max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* WEEK DRAG */
+.week-cell-drop.drag-over{background:#dbeafe !important;border:2px dashed var(--blue) !important}
+
+.calcel{min-height:88px;border-right:1px solid var(--border);border-bottom:1px solid var(--border);padding:7px;background:var(--surface)}
+.calcel:nth-child(7n){border-right:none}
+.calcel.om{background:var(--s2);opacity:.5}
+.calcel.tod{background:#e8f3fd}
+.caldn{font-size:11px;font-family:var(--mono);color:var(--t2);margin-bottom:4px;font-weight:600}
+.calcel.tod .caldn{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;background:var(--blue);color:#fff;border-radius:50%;font-weight:800;margin-bottom:4px}
+.calchip{font-size:10px;padding:2px 6px;border-radius:5px;margin-bottom:2px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;font-weight:700;display:block}
+.calmore{font-size:10px;color:var(--blue);font-weight:700;cursor:pointer}
+
+/* IMPORT */
+.imp-panel{background:var(--surface);border-radius:var(--rl);padding:22px;margin-bottom:20px;box-shadow:var(--shadow);border-top:4px solid var(--blue)}
+.imp-h{font-size:15px;font-weight:800;margin-bottom:4px}
+.imp-s{font-size:12px;color:var(--t2);margin-bottom:16px;line-height:1.7}
+.ai-badge{display:inline-flex;align-items:center;gap:4px;background:var(--blue);color:#fff;font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;margin-left:8px;vertical-align:middle}
+textarea.ei{width:100%;min-height:130px;resize:vertical;font-family:var(--mono);font-size:12px;line-height:1.7}
+.imp-actions{display:flex;align-items:center;gap:10px;margin-top:12px;flex-wrap:wrap}
+.api-wrap{display:flex;align-items:center;gap:7px;margin-left:auto}
+.api-lbl{font-size:11px;color:var(--t3);font-family:var(--mono)}
+input.api-inp{width:200px;font-family:var(--mono);font-size:11px;padding:6px 10px}
+.lb{height:3px;background:var(--s3);border-radius:3px;overflow:hidden;margin-top:10px;display:none}
+.lb.on{display:block}
+@keyframes la{0%{transform:translateX(-100%)}100%{transform:translateX(400%)}}
+.lf{height:100%;background:linear-gradient(90deg,var(--blue),var(--yellow),var(--blue));width:25%;animation:la 1.2s ease-in-out infinite}
+
+/* THREAD SELECTOR */
+.thread-sel{background:var(--s2);border:1.5px solid var(--border2);border-radius:var(--r);padding:12px 16px;margin-bottom:12px}
+.thread-sel-title{font-size:12px;font-weight:800;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.thread-opts{display:flex;flex-direction:column;gap:6px;max-height:180px;overflow-y:auto}
+.t-opt{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:var(--r);border:1.5px solid var(--border);background:var(--surface);cursor:pointer;transition:all .15s}
+.t-opt:hover,.t-opt.sel{border-color:var(--blue);background:#e3f0fc}
+.t-opt-sub{font-size:12px;font-weight:700;flex:1}
+.t-opt-meta{font-size:10px;color:var(--t3)}
+
+/* PARSED PREVIEW */
+.pp-item{background:var(--s2);border:1.5px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:10px}
+.pp-item.update{border-left:4px solid var(--yellow);background:#fffde7}
+.pp-item.new-task{border-left:4px solid var(--green);background:#e8f5e9}
+.pp-action{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;margin-bottom:5px}
+.pp-action.update{color:#7a6000}.pp-action.new{color:var(--green)}
+
+/* CLIENT MATCH CHIP */
+.client-match{display:inline-flex;align-items:center;gap:4px;background:#e3f0fc;border:1px solid var(--blue);border-radius:20px;padding:2px 8px;font-size:10px;font-weight:700;color:var(--blue2)}
+
+/* MODAL */
+.mov{position:fixed;inset:0;background:rgba(13,31,53,.52);display:none;align-items:center;justify-content:center;z-index:100}
+.mov.open{display:flex}
+.modal{background:var(--surface);border-radius:var(--rl);width:580px;max-width:95vw;max-height:88vh;overflow-y:auto;box-shadow:var(--shadow-md)}
+.mhdr{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1.5px solid var(--border)}
+.mbar{width:4px;height:22px;background:var(--blue);border-radius:2px;margin-right:10px}
+.mtit{font-size:15px;font-weight:800;display:flex;align-items:center}
+.mbod{padding:20px 22px}
+.fr{margin-bottom:14px}
+.fl{font-size:10px;color:var(--t3);margin-bottom:6px;text-transform:uppercase;letter-spacing:1.2px;display:block;font-weight:700}
+.fr input,.fr select,.fr textarea{width:100%}
+.fr textarea{min-height:80px;resize:vertical}
+.fg2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fg3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.mftr{display:flex;justify-content:flex-end;gap:10px;padding:16px 22px;border-top:1.5px solid var(--border);background:var(--s2);border-radius:0 0 var(--rl) var(--rl)}
+
+/* DETAIL PANEL */
+.dp{width:350px;flex-shrink:0;background:var(--surface);border-left:1.5px solid var(--border);display:none;flex-direction:column;overflow-y:auto}
+.dp.open{display:flex}
+.dhdr{padding:18px 20px;border-bottom:1.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--s2)}
+.dbod{padding:20px;flex:1}
+.ds{margin-bottom:18px}
+.dl{font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:var(--t3);margin-bottom:5px;font-weight:700}
+.dnote{font-size:12px;color:var(--t2);line-height:1.7;background:var(--s2);border-radius:8px;padding:12px;border-left:3px solid var(--blue)}
+.follow-box{border-radius:var(--r);padding:12px;margin-bottom:16px}
+.follow-box.ok{background:#e8f5e9;border:1.5px solid rgba(46,125,50,.2)}
+.follow-box.urgent{background:#ffebee;border:1.5px solid rgba(198,40,40,.2)}
+.follow-box.warn{background:#fff3e0;border:1.5px solid rgba(230,81,0,.2)}
+.follow-title{font-size:11px;font-weight:800;margin-bottom:5px}
+.follow-title.ok{color:var(--green)}.follow-title.urgent{color:var(--red)}.follow-title.warn{color:var(--orange)}
+.follow-body{font-size:12px;line-height:1.7;color:var(--t2)}
+.th-item{background:var(--s2);border-radius:var(--r);padding:10px 12px;margin-bottom:6px;font-size:11px;border-left:3px solid var(--blue)}
+.th-meta{font-size:10px;color:var(--t3);margin-bottom:3px;font-family:var(--mono)}
+.th-text{color:var(--t2);line-height:1.6}
+
+/* TIPS */
+.tips-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:18px}
+
+/* EML DROP ZONE */
+.drop-zone{border:2.5px dashed var(--border2);border-radius:var(--rl);padding:36px 24px;text-align:center;background:var(--s2);transition:all .2s;cursor:pointer;position:relative}
+.drop-zone.drag-active{border-color:var(--blue);background:#e3f0fc;transform:scale(1.01)}
+.drop-zone.has-files{border-color:var(--green);background:#e8f5e9}
+.drop-zone-icon{font-size:40px;margin-bottom:10px}
+.drop-zone-title{font-size:15px;font-weight:800;color:var(--text);margin-bottom:6px}
+.drop-zone-sub{font-size:12px;color:var(--t2);line-height:1.7}
+.drop-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.eml-file-list{background:var(--surface);border-radius:var(--r);border:1.5px solid var(--border);margin-top:14px;overflow:hidden}
+.eml-file-item{display:flex;align-items:center;gap:10px;padding:9px 14px;border-bottom:1px solid var(--border);font-size:12px}
+.eml-file-item:last-child{border-bottom:none}
+.eml-file-icon{font-size:16px;flex-shrink:0}
+.eml-file-name{flex:1;font-weight:600;font-family:var(--mono);font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.eml-file-size{font-size:10px;color:var(--t3)}
+.eml-remove{background:none;border:none;color:var(--t3);cursor:pointer;font-size:14px;padding:0 4px}
+.eml-remove:hover{color:var(--red)}
+.parse-progress{background:var(--s2);border-radius:var(--r);padding:14px 16px;margin-top:12px;display:none}
+.parse-progress.show{display:block}
+.prog-bar-wrap{height:6px;background:var(--s3);border-radius:3px;overflow:hidden;margin-top:8px}
+.prog-bar-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--yellow));border-radius:3px;transition:width .3s}
+.tip-card{background:var(--surface);border-radius:var(--r);padding:15px;box-shadow:var(--shadow);border-top:3px solid var(--yellow)}
+.tip-t{font-size:12px;font-weight:800;color:var(--blue);margin-bottom:5px}
+.tip-b{font-size:12px;color:var(--t2);line-height:1.7}
+
+/* TOAST */
+.tc{position:fixed;bottom:20px;right:20px;display:flex;flex-direction:column;gap:8px;z-index:200}
+.toast{background:var(--surface);border:1.5px solid var(--border2);border-radius:var(--r);padding:12px 16px;font-size:12px;min-width:240px;animation:si .2s ease;display:flex;align-items:center;gap:10px;box-shadow:var(--shadow-md);font-weight:600}
+.toast.s{border-left:4px solid var(--green)}.toast.e{border-left:4px solid var(--red)}.toast.i{border-left:4px solid var(--blue)}
+@keyframes si{from{transform:translateX(20px);opacity:0}to{transform:translateX(0);opacity:1}}
+::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--s3);border-radius:3px}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sb-logo">
+    <div class="logo-row">
+      <svg class="logo-svg" viewBox="0 0 80 80" fill="none">
+        <circle cx="40" cy="40" r="40" fill="#1a3f6f"/>
+        <path d="M28 27 Q29 14 40 14 Q51 14 52 27" stroke="#F5C400" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+        <path d="M28 28 Q28 16 40 16 Q52 16 52 28 Q52 38 44 44 L44 58 C44 59.5 43 60 42 60 L38 60 C37 60 36 59.5 36 58 L36 44 Q28 38 28 28Z" fill="#2E6DB4"/>
+        <text x="40" y="48" text-anchor="middle" font-family="Nunito,sans-serif" font-weight="800" font-size="22" fill="white">W</text>
+        <rect x="34" y="62" width="12" height="2.5" rx="1.25" fill="#F5C400"/>
+        <rect x="36" y="66.5" width="8" height="2.5" rx="1.25" fill="#F5C400"/>
+        <rect x="38" y="71" width="4" height="2.5" rx="1.25" fill="#F5C400"/>
+      </svg>
+      <div><div><span class="logo-web">Web</span><span class="logo-light">Light</span><span class="logo-web"> Media</span></div><div class="logo-sub">Email Tracker</div></div>
+    </div>
+  </div>
+
+  <div class="sb-scroll">
+    <div class="ng">Views</div>
+    <div class="ni active" onclick="switchView('tasks')">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+      All Tasks
+    </div>
+    <div class="ni" onclick="switchView('calendar')">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+      Calendar
+    </div>
+    <div class="ni" onclick="switchView('import')">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+      Import Email
+    </div>
+    <div class="ni" onclick="switchView('clients')">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+      Clients
+    </div>
+    <div class="ni" onclick="switchView('services')">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+      Services
+    </div>
+
+    <div class="ng" style="display:flex;align-items:center">
+      <span>Categories</span>
+      <button class="ecat-manage-btn" onclick="openCatManager()">⚙ Manage</button>
+    </div>
+    <div id="sb-ecats"></div>
+    <div class="ng">Team <span style="font-size:9px;color:rgba(255,255,255,.2)">(from emails)</span></div>
+    <div id="sb-team"><div class="sb-empty">No team yet</div></div>
+
+    <div class="ng">Active Clients</div>
+    <div id="sb-clients"><div class="sb-empty">Import emails to see active clients</div></div>
+  </div>
+
+  <div class="sb-bot">
+    <div class="api-pill">
+      <div class="api-dot" id="api-dot"></div>
+      <span id="api-txt">Claude not connected</span>
+    </div>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="page-title" id="page-title">All Tasks</div>
+    <div class="tr">
+      <div class="filter-bar" id="task-filters" style="display:none">
+        <input type="text" style="width:155px" placeholder="Search…" oninput="renderTable()" id="si">
+        <select id="fa" onchange="renderTable()"><option value="">All assignees</option></select>
+        <select id="fc" onchange="renderTable()"><option value="">All clients</option></select>
+        <select id="fcat" onchange="renderTable()">
+          <option value="">All types</option>
+          <option value="client-update">Client Update</option>
+          <option value="new-service">New Service</option>
+          <option value="new-sale">New Sale</option>
+          <option value="follow-up">Follow-up</option>
+          <option value="task">Task</option>
+        </select>
+        <select id="fr" onchange="renderTable()">
+          <option value="">Reply status</option>
+          <option value="replied">Replied same day</option>
+          <option value="late">Late reply</option>
+          <option value="awaiting">Awaiting</option>
+        </select>
+        <select id="fecat-filter" onchange="activeEcat=$('fecat-filter').value;renderTable()">
+          <option value="">All categories</option>
+        </select>
+        <select id="fs" onchange="renderTable()">
+          <option value="">All statuses</option>
+          <option value="pending">Pending</option>
+          <option value="in-progress">In Progress</option>
+          <option value="done">Done</option>
+          <option value="overdue">Overdue</option>
+        </select>
+      </div>
+      <button class="btn btn-y" onclick="openModal()" id="add-btn" style="display:none">+ Add Task</button>
+    </div>
+  </div>
+
+  <div class="content">
+    <div id="vt"></div>
+    <div id="vc" style="display:none">
+      <div class="calw">
+        <div class="calhdr">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="display:flex;gap:4px">
+              <button class="btn btn-sm" onclick="cNav(-1)">‹</button>
+              <button class="btn btn-sm" onclick="cNav(1)">›</button>
+            </div>
+            <div class="calm" id="cml"></div>
+            <button class="btn btn-sm" onclick="cToday()">Today</button>
+          </div>
+          <div class="cvtabs">
+            <div class="cvt active" onclick="setCV('month',this)">Month</div>
+            <div class="cvt" onclick="setCV('week',this)">Week</div>
+            <div class="cvt" onclick="setCV('day',this)">Day</div>
+          </div>
+        </div>
+        <div id="cbody"></div>
+      </div>
+    </div>
+    <div id="vi" style="display:none"></div>
+    <div id="vclients" style="display:none"></div>
+    <div id="vsvc" style="display:none"></div>
+  </div>
+</div>
+
+<!-- DETAIL PANEL -->
+<div class="dp" id="dp">
+  <div class="dhdr">
+    <div style="font-size:14px;font-weight:800">Task Detail</div>
+    <button class="ib" onclick="closeDetail()">✕</button>
+  </div>
+  <div class="dbod" id="dbod"></div>
+</div>
+</div>
+
+<!-- TASK MODAL -->
+<div class="mov" id="tm">
+  <div class="modal">
+    <div class="mhdr">
+      <div class="mtit"><div class="mbar"></div><span id="mt">New Task</span></div>
+      <button class="ib" onclick="closeModal()">✕</button>
+    </div>
+    <div class="mbod">
+      <input type="hidden" id="eid">
+      <div class="fr"><label class="fl">Task / Email Subject *</label><input type="text" id="ftitle" placeholder="What needs to be done?"></div>
+      <div class="fg2">
+        <div class="fr"><label class="fl">Assignee</label><input type="text" id="fasgn" placeholder="Team member" list="al"><datalist id="al"></datalist></div>
+        <div class="fr"><label class="fl">Client</label><input type="text" id="fcli" placeholder="Client name" list="cl"><datalist id="cl"></datalist></div>
+      </div>
+      <div class="fg2">
+        <div class="fr"><label class="fl">Type</label>
+          <select id="fcat2">
+            <option value="client-update">📨 Client Update</option>
+            <option value="new-service">⭐ New Service</option>
+            <option value="new-sale">💼 New Sale</option>
+            <option value="follow-up">🔁 Follow-up</option>
+            <option value="task">✅ Task</option>
+          </select>
+        </div>
+        <div class="fr"><label class="fl">Service</label><input type="text" id="fsvc" placeholder="e.g. SEO, Google Ads…" list="svl"><datalist id="svl"></datalist></div>
+      </div>
+      <div class="fg3">
+        <div class="fr"><label class="fl">Due Date</label><input type="date" id="fdue"></div>
+        <div class="fr"><label class="fl">Status</label>
+          <select id="fstat"><option value="pending">Pending</option><option value="in-progress">In Progress</option><option value="done">Done</option></select>
+        </div>
+        <div class="fr"><label class="fl">Priority</label>
+          <select id="fpri"><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option><option value="urgent">Urgent</option></select>
+        </div>
+      </div>
+      <div class="fg2">
+        <div class="fr"><label class="fl">Email Date Received</label><input type="date" id="fedate"></div>
+        <div class="fr"><label class="fl">Reply Status</label>
+          <select id="frep">
+            <option value="awaiting">↻ Awaiting reply</option>
+            <option value="replied">✓ Replied same day</option>
+            <option value="late">⚠ Replied late</option>
+            <option value="n/a">N/A</option>
+          </select>
+        </div>
+      </div>
+      <div class="fr"><label class="fl">Email Category</label>
+        <div style="display:flex;gap:8px;align-items:center">
+          <select id="fecat" style="flex:1">
+            <option value="">— None —</option>
+          </select>
+          <button type="button" class="btn btn-sm" onclick="openCatManager()" title="Manage categories">⚙ Manage</button>
+        </div>
+      </div>
+      <div class="fr"><label class="fl">Notes</label><textarea id="fnotes" placeholder="Key details from the email…"></textarea></div>
+      <div class="fr"><label class="fl">Tags</label><input type="text" id="ftags" placeholder="seo, proposal, design…"></div>
+    </div>
+    <div class="mftr">
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-p" onclick="saveTask()">Save Task</button>
+    </div>
+  </div>
+</div>
+
+<div class="tc" id="tc"></div>
+
+<!-- EMAIL CATEGORY MANAGER MODAL -->
+<div class="mov" id="cat-mgr-overlay">
+  <div class="cat-manage-modal">
+    <div class="mhdr">
+      <div class="mtit"><div class="mbar" style="background:var(--yellow)"></div>Email Categories</div>
+      <button class="ib" onclick="closeCatManager()">✕</button>
+    </div>
+    <div class="mbod">
+      <p style="font-size:12px;color:var(--t2);margin-bottom:14px;line-height:1.6">Organize tasks by email category. Claude will auto-assign categories based on email content, and you can create new ones any time.</p>
+      <div id="cat-mgr-body"></div>
+      <div style="margin-top:16px;padding-top:14px;border-top:1.5px solid var(--border)">
+        <div class="fl">Add New Category</div>
+        <div style="display:flex;gap:8px;align-items:center;margin-top:6px">
+          <input type="text" id="new-cat-name" placeholder="Category name…" style="flex:1" onkeydown="if(event.key==='Enter')addNewCat()">
+          <input type="color" id="new-cat-color" value="#2E6DB4" style="width:36px;height:36px;border:none;background:none;cursor:pointer;padding:0;border-radius:6px">
+          <button class="btn btn-p btn-sm" onclick="addNewCat()">+ Add</button>
+        </div>
+      </div>
+    </div>
+    <div class="mftr"><button class="btn btn-p" onclick="closeCatManager()">Done</button></div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════
+// CLIENT DATABASE — WebLight Media
+// ══════════════════════════════════════════════════════
+const CLIENT_DB = [
+  {biz:"A+A Pest Control Inc.",contact:"Robin Tomkunas",emails:["office@anapestcontrolct.com"]},
+  {biz:"Absolute Air Services",contact:"Josh VanGuilder",emails:["jvanguilder@absoluteairservices.com"]},
+  {biz:"Accounting Connections",contact:"Jolie Swanson",emails:["jolie@accounting-connections.com"]},
+  {biz:"Ace Auto Body",contact:"Kevin Clavette",emails:["aceautobodyk@gmail.com"]},
+  {biz:"Aileen Casey",contact:"Aileen Casey",emails:["aileen@aileendesigns.com"]},
+  {biz:"AirLine Cycles",contact:"Brian Holdt",emails:["brian@airlinecycles.com"]},
+  {biz:"Allstars Electrical",contact:"John Suchecki",emails:["johnmsuchecki@yahoo.com"]},
+  {biz:"Alyson Portelance-Ayer",contact:"Alyson Portelance-Ayer",emails:["alysonsschoolofdance@gmail.com"]},
+  {biz:"AMPM",contact:"Anthony Muro",emails:["ampmpestservices@gmail.com"]},
+  {biz:"Anchor-One LLC",contact:"Ethan Williamson",emails:["anchor.one.ew@gmail.com"]},
+  {biz:"Baber Law",contact:"Nate Baber",emails:["nate.baber@injuredct.com","nate.baber@gmail.com","nate@aetonlaw.com"]},
+  {biz:"Bender Inspection Services",contact:"Michael Gauthier",emails:["benderinspection@gmail.com"]},
+  {biz:"Black Sheep Post and Beam LLC",contact:"Jason Tinelle",emails:["tinelle_bosnia@yahoo.com"]},
+  {biz:"BNI Jacob",contact:"",emails:[]},
+  {biz:"Blue Castle IT",contact:"Diana Scott",emails:["dscott@bluecastleit.com"]},
+  {biz:"Continental Scrap",contact:"Rob Silas",emails:["rob@continentalscrap.com"]},
+  {biz:"BNI Karen",contact:"Karen Gardner",emails:["kgardner@weblightmedia.com"]},
+  {biz:"Andrew Vogl",contact:"Andrew Vogl",emails:["andrew@voglautism.com"]},
+  {biz:"Barocas",contact:"Rick Mayer",emails:["executiveassistant@barocas.com"]},
+  {biz:"Coastline Painters",contact:"Dave Moffitt",emails:["coastlinepaintersllc@comcast.net"]},
+  {biz:"Dr. Steven Jacob",contact:"Dr. Steven Jacob",emails:["drstevenjacob@gmail.com"]},
+  {biz:"Love Light Portraits",contact:"Cindy Ringer",emails:["cindy@ljrimages.com"]},
+  {biz:"McLaughlin Associates Insurance",contact:"TJ Carmichael",emails:["tcarmichael@agencyadmins.com"]},
+  {biz:"Russ Hudson Consulting LLC",contact:"Russ Hudson",emails:["joey@joeyjacob.com"]},
+  {biz:"BNI Minnechaug",contact:"BNI Minnechaug",emails:["leilapoulin@gmail.com"]},
+  {biz:"Bonin Law",contact:"John Bonin",emails:["johnbonin@johnbonin.com"]},
+  {biz:"Built-Rite Closets",contact:"Denis Beauchemin",emails:["built.rite@me.com"]},
+  {biz:"Burgess Co. Insurance",contact:"Scott Prestileo",emails:["scott@tmburgessins.com"]},
+  {biz:"CAFAF",contact:"Margaret Doherty",emails:["margaret.doherty@cafap.com"]},
+  {biz:"CAHI",contact:"Dan Kristiansen",emails:["dkristians@aol.com"]},
+  {biz:"Capital Studio Architects",contact:"David Holmes",emails:["dholmes@capitalstudio.net"]},
+  {biz:"Chozick Realty",contact:"Tess Cullen",emails:["tess@chozickrealty.com"]},
+  {biz:"Cleod Glassworks",contact:"James McLeod",emails:["james@cleodglassworks.com"]},
+  {biz:"Connecticut Retail Network",contact:"Tim Phelan",emails:["tim@ctretailnetwork.com"]},
+  {biz:"Constant Homemakers and Companions Inc",contact:"Edwina Mik",emails:["edwina@constantcareathome.org"]},
+  {biz:"CorVera",contact:"Dan Gysling",emails:["dgysling@corvera.io"]},
+  {biz:"Coverli",contact:"Nate Baber",emails:["nate.baber@gmail.com"]},
+  {biz:"CSI Contractors",contact:"Shane Cornish",emails:["scornish@csicontractors.net"]},
+  {biz:"CT Property Watch",contact:"Kevin Dowd",emails:["kevin@ctpropertywatch.com"]},
+  {biz:"CT River Book Auction",contact:"Tom Gullotta",emails:["tpgullotta@aol.com"]},
+  {biz:"EcoSmart Home Services",contact:"Steve Pelton",emails:["pelton@sbcglobal.net","stephen.pelton@icloud.com"]},
+  {biz:"evoEngage",contact:"John Decina",emails:["john.decina@blitzhealth.com"]},
+  {biz:"Fairways to Heaven Golf",contact:"Michael O'Toole",emails:["otoole@f2hgolf.com"]},
+  {biz:"Fern Wood Flooring",contact:"Patrick Fern",emails:["fernwoodflooring@gmail.com"]},
+  {biz:"Flower Power Farms",contact:"Steve Stanley",emails:["beccafenton05@gmail.com"]},
+  {biz:"Food is Fuel",contact:"Ashley DeBella-Marques",emails:["info@foodisfuelllc.com"]},
+  {biz:"Glasco Heating & Air Conditioning",contact:"Paul Russo",emails:["russohvac@sbcglobal.net"]},
+  {biz:"Goode Bookkeeping & Consulting",contact:"Shannon Goode",emails:["sgoode@goodebookkeeping.com"]},
+  {biz:"Grundmann Landscaping",contact:"Derek Grundmann",emails:["derek@grundmannlandscaping.com"]},
+  {biz:"Hebron Veterinary Hospital",contact:"Kimberly Mordasky",emails:["kamordasky@gmail.com"]},
+  {biz:"High School Counselor Marketing",contact:"Glen Hauser",emails:["gary@highschoolcounselormarketing.com"]},
+  {biz:"Hydro-Pure",contact:"Carri Lineberry",emails:["office@hydro-pure.com"]},
+  {biz:"Injured CT",contact:"Nate Baber",emails:["nate@aetonlaw.com"]},
+  {biz:"Jeff Desrosiers Irrigation",contact:"Jeffrey Desrosiers",emails:["jeff@jeffdirrigation.com"]},
+  {biz:"JLN Contracting",contact:"Jay Stuart",emails:["jay@jlncontracting.com"]},
+  {biz:"John Hodgkins",contact:"John Hodgkins",emails:["john.hodgkins@fairwaymc.com"]},
+  {biz:"JoVal Machine Co.",contact:"Jeff Chase",emails:["jeff@jovalmachine.com"]},
+  {biz:"Kane Hartley & Kane PC",contact:"Thomas B Kane",emails:["tbkane@glastonburylaw.com"]},
+  {biz:"Katherine Ryan",contact:"Katherine Ryan",emails:["katnip33@aol.com"]},
+  {biz:"KCIV Properties",contact:"Kyle Civittolo",emails:["kcivproperties@gmail.com"]},
+  {biz:"Kim Lachapelle",contact:"Kim Lachapelle",emails:["klachapelle@themaxchallenge.com"]},
+  {biz:"Kim Reed",contact:"Kim Reed",emails:["kim@gethealthiernow.com"]},
+  {biz:"Kyele King'oo",contact:"Kyele King'oo",emails:["akyele@archersolutions.biz"]},
+  {biz:"Leese Flooring Supplies",contact:"Danny Connors",emails:["leeseflooring@yahoo.com"]},
+  {biz:"Mario Cerame",contact:"Mario Cerame",emails:["mariokcerame@gmail.com"]},
+  {biz:"Mason County Concert Association",contact:"Pam Boysen",emails:["plboysen@aol.com"]},
+  {biz:"Media Direct Productions",contact:"Lisa Anastasia",emails:["lisa@mediadirectproductions.com"]},
+  {biz:"Mike Fournier",contact:"Mike Fournier",emails:["mike@fournierirrigation.com"]},
+  {biz:"MMNT LLC",contact:"Donna M. Baker",emails:["dbaker@mmnt-cpa.com"]},
+  {biz:"Mrs. Shippie",contact:"Crystal Joyce",emails:["crystal.joyce@unishippers.com"]},
+  {biz:"Natural Home Solutions",contact:"Laura Champagne",emails:["lchampagne713@gmail.com"]},
+  {biz:"NESA Velodrome Foundation",contact:"Rick Mayer",emails:["rmayer@worldcyclingleague.com"]},
+  {biz:"Nitsuj",contact:"Justin Leary",emails:["nitsujmma@yahoo.com"]},
+  {biz:"Oasis Christian Church",contact:"William Orme",emails:["oasisccct@gmail.com"]},
+  {biz:"Optimal IP Strategies",contact:"Matt Patterson",emails:["matthew.patterson@optimalipstrategies.com"]},
+  {biz:"Payroll Connections",contact:"Jolie Swanson",emails:["jolie@accounting-connections.com"]},
+  {biz:"PC Development Group",contact:"Stan Gryskiewicz",emails:["stan@pcdevelopmentgroup.com"]},
+  {biz:"Rhino Garage Doors",contact:"David Taswell",emails:["rhinogaragedoorsct@gmail.com"]},
+  {biz:"Rick Mayer",contact:"Rick Mayer",emails:["rick.mayer@cyclehaven.org"]},
+  {biz:"Roggi's Auto",contact:"Henry Roggi",emails:["henry@roggisauto.com"]},
+  {biz:"Servpro of Yonkers",contact:"Ralph DiCristofaro",emails:["rdicristofaro@servproyonkersnorth.com"]},
+  {biz:"Shapiro Auctions",contact:"Gene Shapiro",emails:["gene@shapiroauctions.com"]},
+  {biz:"Shari Schreiber",contact:"Shari Schreiber",emails:["gettinbetter2019@gmail.com"]},
+  {biz:"SNEAB",contact:"Peter Masi",emails:["masibook@verizon.net"]},
+  {biz:"South Windsor Republican Town Committee",contact:"Kathy Daugherty",emails:["k.daugherty@cox.net","swrtc1@gmail.com"]},
+  {biz:"South Windsor Strawberry Festival",contact:"Kathy Daugherty",emails:["kdaugherty1634@gmail.com","swrtc1@gmail.com","dextersteph45@gmail.com"]},
+  {biz:"Sovereign Home Healthcare",contact:"Felix Effa",emails:["info@sovereignhomehealthcare.com"]},
+  {biz:"Stepule Builders",contact:"Brian Stepule",emails:["brianstepule@gmail.com"]},
+  {biz:"Strain Measurement Devices",contact:"Marc Savoie",emails:["msavoie@smdsensors.com"]},
+  {biz:"TaxAbility",contact:"Jolie Swanson",emails:["jolie@accounting-connections.com"]},
+  {biz:"The Belwether Group",contact:"Chelsea Gorczyca",emails:["chelsea@thebelwethergroup.org"]},
+  {biz:"The Health Consultants Group",contact:"Acrisure",emails:["payables@acrisure.com"]},
+  {biz:"The Knowles Company",contact:"Rob McKee",emails:["businessmanager@knowlesco.com"]},
+  {biz:"The Science of Empowerment",contact:"Laura Brennan",emails:["laurabballet@gmail.com"]},
+  {biz:"The Windsor Learning Center",contact:"Rob Mannarino",emails:["rob@mannarinobuilders.com"]},
+  {biz:"Veda MedSpa",contact:"Srikant Krishna",emails:["sri@uptickllc.com"]},
+  {biz:"Ward Consulting Group",contact:"Frank Ward",emails:["fbward@securitycybernetics.com"]},
+  {biz:"WebLight Media",contact:"David Joslin",emails:["david@weblightmedia.com"]},
+  {biz:"Willa Biewald",contact:"Willa Biewald",emails:["willabiewald@gmail.com"]},
+  {biz:"Wisdom and Youth LLC",contact:"Brittany Eaton",emails:["wisdomandyouthllc@gmail.com"]},
+  {biz:"WORK_SPACE",contact:"Stacey Zackin",emails:["szackin@manchesterct.gov"]}
+];
+
+// ══════════════════════════════════════════════════════
+// SERVICES DATABASE
+// ══════════════════════════════════════════════════════
+const SERVICES_DB = {
+  "Hosting":["Website Hosting","Weekly Checks","WordPress Management","Plugin Management","DNS Management","Website Customer Care","Registration Management","Migration","Setup Analytics"],
+  "Content":["Monthly Content","Blogging","Newsletters","Business Listings","Google Business Profile","Bright Local","Backlinks"],
+  "PPC / Ads":["PPC Management","Google Ads","Facebook/Instagram Ads","LinkedIn Ads","Microsoft Ads"],
+  "Analytics":["SEM Rush","Google Analytics","Agency Analytics Dashboard","Consulting"],
+  "Website":["Website Development","Website Design","Website Writing","Onsite SEO","Website Maintenance","Website Edits"],
+  "Photo / Video":["Company Head Shots","Product Photography","Website Photography","SM Photography","Website Video","SM Video","Header Videos","Product Videos","Promotional Videos","Social Media Photo and Video","Avatar Twinning","AI Content","Video Logo Builds","Video Ads"],
+  "SEO":["AI and Google Search Optimization","Competitive Research","Review Management","Review Generation Grade_Us","Review Replies"],
+  "Branding":["Logo Design","Print Work","Consulting","Custom Website Programming","3rd Party Website Integration"],
+  "Social Media":["Facebook","Instagram","LinkedIn","TikTok","Pinterest","Graphics","Short Form Video"],
+  "Recurring":["Hosting","Basic Business Listings","GBP Yearly","GBP","Backlinks","PPC","Ads Google","Ads LinkedIn","Ads Meta","Ads Bing","Recurring Content","Review Management Monthly","Review Management Weekly","Blogging","Newsletter","SEO Analytics","Social Media","Events/Training","Website Maintenance"],
+  "Projects":["Branding","Photo/Video","Consulting","Website Development","SEO Project"]
+};
+
+// Flat list for datalist
+const ALL_SERVICES = Object.values(SERVICES_DB).flat();
+
+// ══════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════
+// ── PERSISTENT STORAGE with versioned key ──
+const STORE_KEY = 'wlm5';
+function loadStore(key, def){ try{ const v=localStorage.getItem(STORE_KEY+'_'+key); return v?JSON.parse(v):def; }catch(e){ return def; } }
+function saveStore(key, val){ localStorage.setItem(STORE_KEY+'_'+key, JSON.stringify(val)); }
+
+// Migrate from old keys if needed
+(function migrate(){
+  if(!localStorage.getItem(STORE_KEY+'_tasks') && localStorage.getItem('wlm4_tasks')){
+    localStorage.setItem(STORE_KEY+'_tasks', localStorage.getItem('wlm4_tasks'));
+    localStorage.setItem(STORE_KEY+'_threads', localStorage.getItem('wlm4_threads')||'[]');
+  }
+})();
+
+let tasks   = loadStore('tasks', []);
+let threads = loadStore('threads', []);
+// Default email categories — user can add/edit/delete
+let emailCategories = loadStore('ecats', [
+  {id:'prod', label:'Production', color:'#e65100', bg:'#fff3e0'},
+  {id:'upd',  label:'Updates',   color:'#1565c0', bg:'#e3f0fc'},
+  {id:'sales',label:'Sales',     color:'#2e7d32', bg:'#e8f5e9'},
+  {id:'admin',label:'Admin',     color:'#6a1b9a', bg:'#f3e5f5'},
+  {id:'other',label:'Other',     color:'#5f6368', bg:'#f1f3f4'}
+]);
+
+let parsed  = [];
+let selectedThreadId = null;
+let curView   = 'tasks';
+let calDate   = new Date();
+let calMode   = 'month';
+let editId    = null;
+let activeCat = '';
+let activeEcat = '';  // email category filter
+let dragTaskId = null;
+
+const AVC = ['#2E6DB4','#c62828','#2e7d32','#6a1b9a','#e65100','#00695c','#1565c0','#8a6000'];
+
+// ── EMAIL CATEGORY HELPERS ──────────────────────────────
+function ecatById(id){ return emailCategories.find(c=>c.id===id)||null; }
+function ecatBadge(id){
+  if(!id) return '';
+  const c=ecatById(id);
+  if(!c) return '';
+  return `<span class="ecat-badge" style="background:${c.bg};color:${c.color};border-color:${c.color}22">${c.label}</span>`;
+}
+function openCatManager(){
+  document.getElementById('cat-mgr-overlay').classList.add('open');
+  renderCatManager();
+}
+function closeCatManager(){ document.getElementById('cat-mgr-overlay').classList.remove('open'); }
+function renderCatManager(){
+  const body = document.getElementById('cat-mgr-body');
+  body.innerHTML = emailCategories.map(c=>`
+    <div class="cat-row">
+      <div class="cat-swatch" style="background:${c.color}"></div>
+      <span class="cat-label">${esc(c.label)}</span>
+      <input type="color" value="${c.color}" onchange="updateCatColor('${c.id}',this.value)" style="width:28px;height:28px;border:none;background:none;cursor:pointer;padding:0" title="Change color">
+      <button class="cat-del" onclick="deleteCat('${c.id}')" title="Delete">✕</button>
+    </div>`).join('');
+}
+function addNewCat(){
+  const inp = document.getElementById('new-cat-name');
+  const col = document.getElementById('new-cat-color');
+  const label = inp.value.trim();
+  if(!label){ toast('Enter a category name','e'); return; }
+  const id = 'cat_' + Date.now().toString(36);
+  const bg = col.value + '22';
+  emailCategories.push({id, label, color:col.value, bg});
+  saveAll();
+  inp.value='';
+  renderCatManager();
+  toast('Category "' + label + '" added','s');
+}
+function deleteCat(id){
+  if(!confirm('Delete this category? Tasks with this category will be uncategorized.')) return;
+  emailCategories = emailCategories.filter(c=>c.id!==id);
+  tasks.forEach(t=>{ if(t.emailCat===id) t.emailCat=''; });
+  saveAll();
+  renderCatManager();
+  toast('Category deleted','i');
+}
+function updateCatColor(id, color){
+  const c = ecatById(id); if(!c) return;
+  c.color = color;
+  c.bg = color + '22';
+  saveAll();
+  renderCatManager();
+}
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const $ = id => document.getElementById(id);
+const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+function ini(n){ return (n||'?').split(/[\s@.]+/).slice(0,2).map(w=>w[0]||'').join('').toUpperCase()||'?'; }
+function acolor(n){ let h=0; for(let c of(n||''))h=(h*31+c.charCodeAt(0))&0xffff; return AVC[h%AVC.length]; }
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
+function today(){ return new Date().toISOString().slice(0,10); }
+function dplus(n){ return new Date(Date.now()+n*86400000).toISOString().slice(0,10); }
+function saveAll(){
+  saveStore('tasks', tasks);
+  saveStore('threads', threads);
+  saveStore('ecats', emailCategories);
+}
+
+// Build compressed client context string for Claude (email → biz name lookup)
+function buildClientContext(){
+  const lines = CLIENT_DB.map(c => {
+    const emails = c.emails.join(', ');
+    return `${c.biz}|${c.contact}|${emails}`;
+  });
+  return lines.join('\n');
+}
+
+// Lookup client by email address
+function lookupClientByEmail(email){
+  if(!email) return null;
+  const e = email.toLowerCase().trim();
+  return CLIENT_DB.find(c => c.emails.some(ce => ce.toLowerCase()===e));
+}
+
+// Lookup client by name (fuzzy)
+function lookupClientByName(name){
+  if(!name) return null;
+  const n = name.toLowerCase();
+  return CLIENT_DB.find(c =>
+    c.biz.toLowerCase().includes(n) || n.includes(c.biz.toLowerCase().slice(0,10)) ||
+    c.contact.toLowerCase().includes(n) || n.includes(c.contact.toLowerCase().split(' ')[0])
+  );
+}
+
+// ══════════════════════════════════════════════════════
+// VIEW SWITCHING
+// ══════════════════════════════════════════════════════
+function switchView(v){
+  curView=v;
+  ['vt','vc','vi','vclients','vsvc'].forEach(id=>$(id).style.display='none');
+  $('task-filters').style.display='none';
+  $('add-btn').style.display='none';
+  document.querySelectorAll('.ni').forEach((el,i)=>el.classList.toggle('active',['tasks','calendar','import','clients','services'][i]===v));
+  $('page-title').textContent={tasks:'All Tasks',calendar:'Calendar',import:'Import Email / Transcript',clients:'Client Directory',services:'Services'}[v];
+  if(v==='tasks'){ $('vt').style.display='block'; $('add-btn').style.display='flex'; $('task-filters').style.display=tasks.length?'flex':'none'; renderAll(); }
+  if(v==='calendar'){ $('vc').style.display='block'; renderCal(); }
+  if(v==='import'){ $('vi').style.display='block'; renderImportView(); }
+  if(v==='clients'){ $('vclients').style.display='block'; renderClientsView(); }
+  if(v==='services'){ $('vsvc').style.display='block'; renderServicesView(); }
+}
+
+function setCat(val,el){
+  activeCat=val;
+  document.querySelectorAll('.ct').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  renderTable();
+}
+
+// ══════════════════════════════════════════════════════
+// TASKS VIEW
+// ══════════════════════════════════════════════════════
+function renderAll(){
+  if(!tasks.length){ renderEmptyState(); return; }
+  $('task-filters').style.display='flex';
+  renderNotifications();
+  renderStats();
+  renderTable();
+}
+
+function renderEmptyState(){
+  $('vt').innerHTML=`
+    <div class="empty-state">
+      <div class="es-icon">📭</div>
+      <div class="es-title">No tasks yet</div>
+      <div class="es-sub">Import your first email and Claude will automatically identify the client from the WebLight Media client database, extract tasks, detect team members, and set up your workspace.</div>
+      <button class="btn btn-p" onclick="switchView('import')" style="margin:0 auto">⚡ Import your first email</button>
+    </div>`;
+}
+
+// ══════════════════════════════════════════════════════
+// NOTIFICATIONS
+// ══════════════════════════════════════════════════════
+function renderNotifications(){
+  const td=today(), notifs=[];
+  const unassigned=tasks.filter(t=>!t.assignee||!t.assignee.trim());
+  unassigned.forEach(t=>notifs.push({type:'flag',icon:'🚩',title:`Unassigned: "${t.title}"`,body:`Client: ${t.client||'unknown'}. Review the email and assign to an account manager.`,action:'Assign now',taskId:t.id}));
+  const overdue=tasks.filter(t=>t.due&&t.due<td&&t.status!=='done');
+  overdue.slice(0,4).forEach(t=>{
+    const d=Math.round((new Date(td)-new Date(t.due))/86400000);
+    notifs.push({type:'urgent',icon:'🔴',title:`Overdue ${d}d: ${t.title}`,body:`${t.assignee||'(unassigned)'} · ${t.client||'—'}. Send a follow-up today referencing the original email from ${t.emailDate||'—'}.`,action:'View',taskId:t.id});
+  });
+  tasks.filter(t=>t.reply==='late'&&t.status!=='done').slice(0,3).forEach(t=>{
+    notifs.push({type:'urgent',icon:'⚠️',title:`Late reply: ${t.title}`,body:`${t.assignee||'(unassigned)'} did not reply same-day to ${t.client||'the client'}. Respond immediately and acknowledge the delay.`,action:'View',taskId:t.id});
+  });
+  tasks.filter(t=>t.due===td&&t.status!=='done').forEach(t=>{
+    notifs.push({type:'warn',icon:'📅',title:`Due today: ${t.title}`,body:`Check in with ${t.assignee||'(unassigned)'} before EOD${t.client?` · ${t.client}`:''}.`,action:'View',taskId:t.id});
+  });
+  tasks.filter(t=>t.due&&t.due>td&&t.due<=dplus(2)&&t.status!=='done').forEach(t=>{
+    const d=Math.round((new Date(t.due)-new Date(td))/86400000);
+    notifs.push({type:'info',icon:'🔔',title:`Due in ${d}d: ${t.title}`,body:`Remind ${t.assignee||'(unassigned)'} today. ${t.client?`Client: ${t.client}.`:''}`,action:'View',taskId:t.id});
+  });
+  tasks.filter(t=>t.reply==='awaiting'&&t.emailDate&&t.emailDate<dplus(-1)&&t.status!=='done').slice(0,2).forEach(t=>{
+    const d=Math.round((new Date(td)-new Date(t.emailDate))/86400000);
+    notifs.push({type:'warn',icon:'📬',title:`No reply ${d}d: ${t.title}`,body:`${t.client||'Client'} hasn't received a reply since ${t.emailDate}. ${t.assignee||'Assignee'} should respond today.`,action:'View',taskId:t.id});
+  });
+
+  const notifHtml = notifs.length
+    ? `<div class="notif-panel">
+        <div class="notif-hdr" onclick="toggleNotif()">
+          <div class="notif-title">🔔 Follow-up Instructions & Alerts <span class="notif-badge">${notifs.length}</span></div>
+          <span id="notif-arrow" style="color:#7a6000;font-size:12px">▼</span>
+        </div>
+        <div class="notif-body open" id="notif-body">
+          ${notifs.map(n=>`<div class="ni2 ${n.type}"><div class="ni-icon">${n.icon}</div><div class="ni-text"><strong>${esc(n.title)}</strong>${esc(n.body)}${n.taskId?`<span class="ni-action" onclick="openDetail('${n.taskId}')">${n.action} →</span>`:''}</div></div>`).join('')}
+        </div>
+      </div>`
+    : `<div style="background:#e8f5e9;border-radius:var(--rl);padding:12px 18px;margin-bottom:20px;display:flex;align-items:center;gap:10px;font-size:12px;font-weight:600;color:var(--green);border-left:4px solid var(--green)">✅ All tasks on track. No follow-ups needed right now.</div>`;
+
+  $('vt').innerHTML = notifHtml + '<div id="stats-row"></div><div id="task-area"></div>';
+  renderStats();
+  renderTable();
+}
+
+function toggleNotif(){
+  const b=$('notif-body'),a=$('notif-arrow');
+  const open=b.classList.contains('open');
+  b.classList.toggle('open',!open);
+  a.textContent=open?'▶':'▼';
+}
+
+// ══════════════════════════════════════════════════════
+// STATS
+// ══════════════════════════════════════════════════════
+function renderStats(){
+  const td=today(),tot=tasks.length;
+  const ov=tasks.filter(t=>t.due&&t.due<td&&t.status!=='done').length;
+  const dt=tasks.filter(t=>t.due===td&&t.status!=='done').length;
+  const ua=tasks.filter(t=>!t.assignee||!t.assignee.trim()).length;
+  const dn=tasks.filter(t=>t.status==='done').length;
+  const el=$('stats-row');
+  if(!el) return;
+  el.innerHTML=`<div class="stats-row">
+    <div class="sc2 cb"><div class="sl">Total Tasks</div><div class="sv" style="color:var(--blue)">${tot}</div><div class="ss">${dn} completed</div></div>
+    <div class="sc2 cr"><div class="sl">Overdue</div><div class="sv" style="color:var(--red)">${ov}</div><div class="ss">need immediate action</div></div>
+    <div class="sc2 cy"><div class="sl">Due Today</div><div class="sv" style="color:var(--orange)">${dt}</div><div class="ss">follow up today</div></div>
+    <div class="sc2 ${ua>0?'cr':'cg'}"><div class="sl">Unassigned</div><div class="sv" style="color:${ua>0?'var(--red)':'var(--green)'}">${ua}</div><div class="ss">${ua>0?'need assignees':'all assigned'}</div></div>
+  </div>`;
+}
+
+// ══════════════════════════════════════════════════════
+// BADGES
+// ══════════════════════════════════════════════════════
+function catB(c){const m={'client-update':['📨 Client Update','cb-cu'],'new-service':['⭐ New Service','cb-ns'],'new-sale':['💼 New Sale','cb-sl'],'follow-up':['🔁 Follow-up','cb-fu'],'task':['✅ Task','cb-tk']};const[l,cls]=m[c]||['Other','cb-tk'];return`<span class="cb2 ${cls}">${l}</span>`;}
+function statB(s){const m={pending:'bgr','in-progress':'bb',done:'bg',overdue:'br'};const l={pending:'Pending','in-progress':'In Progress',done:'Done',overdue:'Overdue'};return`<span class="badge ${m[s]||'bgr'}">${l[s]||s}</span>`;}
+function repB(r){const m={replied:'bg',late:'br',awaiting:'bo','n/a':'bgr'};const l={replied:'✓ Same day',late:'⚠ Late',awaiting:'↻ Awaiting','n/a':'—'};return`<span class="badge ${m[r]||'bgr'}" style="font-size:10px">${l[r]||r}</span>`;}
+function priB(p){const d={urgent:'var(--red)',high:'var(--orange)',medium:'var(--blue)',low:'var(--t3)'};const l={urgent:'Urgent',high:'High',medium:'Medium',low:'Low'};return`<span style="display:inline-flex;align-items:center;font-size:11px;color:var(--t2);font-weight:600"><span class="pdot" style="background:${d[p]||'#aaa'}"></span>${l[p]||'—'}</span>`;}
+
+// ══════════════════════════════════════════════════════
+// TABLE
+// ══════════════════════════════════════════════════════
+function getFiltered(){
+  const td=today();
+  const search=$('si')?$('si').value.toLowerCase():'';
+  const asgn=$('fa')?$('fa').value:'',cli=$('fc')?$('fc').value:'';
+  const cat=$('fcat')?($('fcat').value||activeCat):activeCat;
+  const rep=$('fr')?$('fr').value:'',stat=$('fs')?$('fs').value:'';
+  let list=tasks.map(t=>({...t,es:(t.status!=='done'&&t.due&&t.due<td)?'overdue':t.status}));
+  if(search) list=list.filter(t=>(t.title+t.assignee+t.client+t.notes+t.tags+t.service).toLowerCase().includes(search));
+  if(asgn)   list=list.filter(t=>t.assignee===asgn);
+  if(cli)    list=list.filter(t=>t.client===cli);
+  if(cat)    list=list.filter(t=>t.category===cat);
+  if(rep)    list=list.filter(t=>t.reply===rep);
+  if(stat)   list=list.filter(t=>t.es===stat);
+  if(activeEcat) list=list.filter(t=>t.emailCat===activeEcat);
+  list.sort((a,b)=>(a.due||'9999')<(b.due||'9999')?-1:1);
+  return list;
+}
+
+function renderTable(){
+  const ta=$('task-area'); if(!ta) return;
+  const list=getFiltered(), td=today();
+  const rows=list.length?list.map(t=>{
+    const col=acolor(t.assignee||'?');
+    const isOD=t.es==='overdue', noA=!t.assignee||!t.assignee.trim();
+    const dueD=t.due?(t.due===td?`<span style="color:var(--orange);font-weight:800">Today</span>`:isOD?`<span style="color:var(--red);font-weight:700">${t.due}</span>`:t.due):'—';
+    const thr=threads.find(th=>th.id===t.threadId);
+    const dbClient=lookupClientByName(t.client);
+    return`<tr>
+      <td style="max-width:220px">
+        <div style="display:flex;align-items:flex-start;gap:5px">
+          ${noA?`<span class="flag-badge" title="Unassigned">🚩</span>`:''}
+          <div>
+            <div style="cursor:pointer" onclick="openDetail('${t.id}')">
+              ${(()=>{
+                const parts = t.title.split(/:\s*/);
+                if(parts.length >= 2){
+                  const subject = parts[0];
+                  const action  = parts.slice(1).join(': ');
+                  return `<div style="font-weight:800;font-size:12px;color:var(--blue2)">${esc(subject)}</div>
+                          <div style="font-weight:600;font-size:11px;color:var(--t2);margin-top:1px">${esc(action)}</div>`;
+                }
+                return `<div style="font-weight:700">${esc(t.title)}</div>`;
+              })()}
+            </div>
+            ${thr?`<span class="tlink" onclick="openDetail('${t.id}')">🔗 ${esc(thr.subject||'thread')} <span class="tcount">${thr.emails.length}</span></span>`:''}
+            ${t.service?`<span class="badge bb" style="font-size:9px;margin-top:3px">${esc(t.service)}</span>`:''}
+            ${t.emailCat?ecatBadge(t.emailCat):''}
+          </div>
+        </div>
+      </td>
+      <td style="font-size:12px">
+        <div style="font-weight:700;color:var(--blue2)">${esc(t.client||'—')}</div>
+        ${dbClient?`<div style="font-size:10px;color:var(--t3)">${esc(dbClient.contact)}</div>`:''}
+      </td>
+      <td>${noA?`<span class="flag-badge">Unassigned</span>`:`<div class="ac"><div class="av" style="background:${col}22;color:${col}">${ini(t.assignee)}</div><span style="font-size:12px">${esc(t.assignee)}</span></div>`}</td>
+      <td>${catB(t.category)}</td>
+      <td style="white-space:nowrap"><input type="date" value="${t.due||''}" onchange="setDue('${t.id}',this.value)" style="font-family:var(--mono);font-size:11px;padding:3px 7px;border-radius:6px;border:1.5px solid var(--border2);background:var(--s2);color:${isOD?'var(--red)':t.due===td?'var(--orange)':'var(--text)'};font-weight:${isOD||t.due===td?'800':'400'};width:130px;cursor:pointer" title="Click to set or change due date"></td>
+      <td>${statB(t.es)}</td>
+      <td>${repB(t.reply||'n/a')}</td>
+      <td>${priB(t.priority)}</td>
+      <td><div class="ab"><button class="ib" onclick="openModal('${t.id}')">✎</button><button class="ib del" onclick="delTask('${t.id}')">✕</button></div></td>
+    </tr>`;
+  }).join(''):`<tr class="er"><td colspan="9">No tasks match filters.</td></tr>`;
+
+  ta.innerHTML=`
+    <div class="cat-tabs">
+      <div class="ct ${activeCat===''?'active':''}" onclick="setCat('',this)">All</div>
+      <div class="ct ${activeCat==='client-update'?'active':''}" onclick="setCat('client-update',this)">📨 Client Updates</div>
+      <div class="ct ${activeCat==='new-service'?'active':''}" onclick="setCat('new-service',this)">⭐ New Services</div>
+      <div class="ct ${activeCat==='new-sale'?'active':''}" onclick="setCat('new-sale',this)">💼 New Sales</div>
+      <div class="ct ${activeCat==='follow-up'?'active':''}" onclick="setCat('follow-up',this)">🔁 Follow-ups</div>
+      <div class="ct ${activeCat==='task'?'active':''}" onclick="setCat('task',this)">✅ Tasks</div>
+    </div>
+    <div class="tw"><table>
+      <thead><tr><th>Task / Subject</th><th>Client</th><th>Assignee</th><th>Type</th><th>Due</th><th>Status</th><th>Reply</th><th>Priority</th><th></th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table></div>`;
+  updateDropdowns(); renderSidebar();
+}
+
+function updateDropdowns(){
+  const asel=$('fa'),csel=$('fc'),ecf=$('fecat-filter');
+  if(!asel||!csel) return;
+  const ac=asel.value,cc=csel.value,ec=ecf?ecf.value:'';
+  const assignees=[...new Set(tasks.map(t=>t.assignee).filter(Boolean))].sort();
+  const clients=[...new Set(tasks.map(t=>t.client).filter(Boolean))].sort();
+  asel.innerHTML=`<option value="">All assignees</option>`+assignees.map(n=>`<option ${n===ac?'selected':''}>${esc(n)}</option>`).join('');
+  csel.innerHTML=`<option value="">All clients</option>`+clients.map(n=>`<option ${n===cc?'selected':''}>${esc(n)}</option>`).join('');
+  if(ecf) ecf.innerHTML=`<option value="">All categories</option>`+emailCategories.map(c=>`<option value="${c.id}" ${c.id===ec?'selected':''}>${esc(c.label)}</option>`).join('');
+  // Merge known team with any assignees from tasks
+  const allAssignees=[...new Set([...TEAM_MEMBERS,...assignees])].sort();
+  $('al').innerHTML=allAssignees.map(n=>`<option value="${esc(n)}">`).join('');
+  // Also update the assignee filter dropdown to include full team
+  asel.innerHTML=`<option value="">All assignees</option>`+allAssignees.map(n=>`<option ${n===ac?'selected':''}>${esc(n)}</option>`).join('');
+  $('cl').innerHTML=clients.map(n=>`<option value="${esc(n)}">`).join('');
+  $('svl').innerHTML=ALL_SERVICES.map(s=>`<option value="${esc(s)}">`).join('');
+}
+
+function renderSidebar(){
+  const assignees=[...new Set(tasks.map(t=>t.assignee).filter(Boolean))].sort();
+  const clients=[...new Set(tasks.map(t=>t.client).filter(Boolean))].sort();
+  // Always show full team — even before emails are imported
+  const allTeam = [...new Set([...TEAM_MEMBERS, ...assignees])];
+  $('sb-team').innerHTML=allTeam.map(n=>{
+    const col=acolor(n),op=tasks.filter(t=>t.assignee===n&&t.status!=='done').length;
+    const late=tasks.filter(t=>t.assignee===n&&t.reply==='late').length;
+    const role=TEAM_ROLES[n]||'';
+    return`<div class="sc" onclick="filterBy('a','${esc(n)}')">
+      <div class="av" style="background:${col}33;color:${col};font-size:9px;width:22px;height:22px">${ini(n)}</div>
+      <div style="flex:1;min-width:0">
+        <div class="sn">${esc(n)}</div>
+        ${role?`<div style="font-size:9px;color:rgba(255,255,255,0.3);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(role)}</div>`:''}
+      </div>
+      ${op?`<span class="sk">${op}</span>`:''}
+      ${late?`<span class="sw">⚠</span>`:''}
+    </div>`;
+  }).join('');
+  $('sb-clients').innerHTML=clients.length?clients.slice(0,7).map(n=>{
+    const op=tasks.filter(t=>t.client===n&&t.status!=='done').length;
+    return`<div class="sc" onclick="filterBy('c','${esc(n)}')"><span style="font-size:10px">🏢</span><span class="sn" style="font-size:11px">${esc(n)}</span>${op?`<span class="sk">${op}</span>`:''}</div>`;
+  }).join(''):`<div class="sb-empty">Import emails to populate</div>`;
+
+  // Render email category pills in sidebar
+  const sbec = $('sb-ecats');
+  if(sbec){
+    sbec.innerHTML = emailCategories.map(c=>{
+      const cnt = tasks.filter(t=>t.emailCat===c.id&&t.status!=='done').length;
+      return `<div class="sc" onclick="activeEcat=activeEcat===c.id?'':'${c.id}';switchView('tasks')">
+        <span class="cat-swatch" style="background:${c.color};width:10px;height:10px;border-radius:50%;flex-shrink:0"></span>
+        <span class="sn" style="font-size:11px">${esc(c.label)}</span>
+        ${cnt?`<span class="sk">${cnt}</span>`:''}
+      </div>`;
+    }).join('');
+  }
+}
+
+function filterBy(f,val){ switchView('tasks'); if(f==='a') $('fa')&&($('fa').value=val); if(f==='c') $('fc')&&($('fc').value=val); renderTable(); }
+
+// ══════════════════════════════════════════════════════
+// CLIENTS VIEW
+// ══════════════════════════════════════════════════════
+function renderClientsView(){
+  const taskCounts={};
+  tasks.forEach(t=>{if(t.client){taskCounts[t.client]=(taskCounts[t.client]||0)+(t.status!=='done'?1:0);}});
+  $('vclients').innerHTML=`
+    <div style="margin-bottom:16px;display:flex;align-items:center;justify-content:space-between">
+      <div class="st">WebLight Media Client Directory — ${CLIENT_DB.length} clients</div>
+      <input type="text" placeholder="Search clients…" style="width:200px" oninput="filterClients(this.value)" id="client-search">
+    </div>
+    <div class="clients-grid" id="clients-grid">
+      ${CLIENT_DB.map(c=>`
+        <div class="client-card ${taskCounts[c.biz]?'has-tasks':''}" onclick="filterBy('c','${esc(c.biz)}')">
+          <div class="cc-name">${esc(c.biz)}</div>
+          ${c.contact?`<div class="cc-contact">👤 ${esc(c.contact)}</div>`:''}
+          ${c.emails.length?`<div class="cc-email">${esc(c.emails[0])}</div>`:''}
+          ${taskCounts[c.biz]?`<div style="margin-top:6px"><span class="badge bb" style="font-size:10px">${taskCounts[c.biz]} open task${taskCounts[c.biz]!==1?'s':''}</span></div>`:''}
+        </div>`).join('')}
+    </div>`;
+}
+
+function filterClients(q){
+  const cards=document.querySelectorAll('.client-card');
+  const ql=q.toLowerCase();
+  cards.forEach(c=>{c.style.display=c.textContent.toLowerCase().includes(ql)?'':'none';});
+}
+
+// ══════════════════════════════════════════════════════
+// SERVICES VIEW
+// ══════════════════════════════════════════════════════
+function renderServicesView(){
+  $('vsvc').innerHTML=`
+    <div class="st" style="margin-bottom:16px">WebLight Media — Full Service List</div>
+    <div class="svc-grid">
+      ${Object.entries(SERVICES_DB).map(([cat,svcs])=>`
+        <div class="svc-card">
+          <div class="svc-cat">${esc(cat)}</div>
+          ${svcs.map(s=>`<div class="svc-item">${esc(s)}</div>`).join('')}
+        </div>`).join('')}
+    </div>`;
+}
+
+// ══════════════════════════════════════════════════════
+// IMPORT VIEW
+// ══════════════════════════════════════════════════════
+function renderImportView(){
+  const threadSel = threads.length ? `
+    <div class="thread-sel">
+      <div class="thread-sel-title">🔗 Link to existing thread <span style="font-size:11px;font-weight:400;color:var(--t2)">(optional — Claude auto-detects if you skip)</span></div>
+      <div class="thread-opts">
+        ${threads.map(th=>`<div class="t-opt ${selectedThreadId===th.id?'sel':''}" onclick="selThread('${th.id}')">
+          <div style="flex:1"><div class="t-opt-sub">${esc(th.subject||'(no subject)')}</div><div class="t-opt-meta">${esc(th.client||'?')} · ${th.emails.length} email${th.emails.length!==1?'s':''} · last: ${th.emails[th.emails.length-1]?.date||'?'}</div></div>
+          <span style="font-size:10px;background:var(--blue);color:#fff;padding:1px 6px;border-radius:20px">${th.emails.length}</span>
+        </div>`).join('')}
+      </div>
+      <button class="btn btn-sm" style="margin-top:8px" onclick="selThread(null)">✕ Start new thread</button>
+    </div>` : '';
+
+  $('vi').innerHTML=`
+    <div class="imp-panel">
+      <div class="imp-h">Import Emails <span class="ai-badge">⚡ Claude AI</span></div>
+      <div class="imp-s">
+        <strong>Drag and drop .eml files</strong> directly from Gmail — select multiple emails in Gmail, download them, and drop the whole batch here. Claude reads all of them at once and auto-routes tasks to your team.<br>
+        <span style="color:var(--t3);font-size:11px">Or paste email text manually in the text area below.</span>
+      </div>
+
+      <!-- .EML DROP ZONE -->
+      <div class="drop-zone" id="eml-drop-zone"
+        ondragover="emlDragOver(event)" ondragleave="emlDragLeave(event)" ondrop="emlDrop(event)">
+        <input type="file" id="eml-file-input" accept=".eml,.txt,message/rfc822" multiple onchange="emlFilePicked(this.files)">
+        <div class="drop-zone-icon">📂</div>
+        <div class="drop-zone-title">Drop .eml files here</div>
+        <div class="drop-zone-sub">
+          Drag multiple emails at once · or click to browse<br>
+          <strong style="color:var(--blue)">How to export from Gmail:</strong> Select emails → ⋮ More → Download message (.eml) · or use <strong>Google Takeout</strong> for bulk export
+        </div>
+      </div>
+
+      <!-- FILE LIST -->
+      <div id="eml-file-list" style="display:none">
+        <div class="eml-file-list" id="eml-files-inner"></div>
+        <div style="display:flex;gap:10px;margin-top:12px;align-items:center">
+          <button class="btn btn-p" id="parse-eml-btn" onclick="parseEmlFiles()">⚡ Parse All Emails with Claude</button>
+          <button class="btn btn-sm" onclick="clearEmlFiles()">✕ Clear all</button>
+          <span id="eml-count-label" style="font-size:12px;color:var(--t2)"></span>
+        </div>
+      </div>
+
+      <!-- PROGRESS -->
+      <div class="parse-progress" id="parse-progress">
+        <div style="font-size:12px;font-weight:700" id="prog-label">Reading emails…</div>
+        <div class="prog-bar-wrap"><div class="prog-bar-fill" id="prog-fill" style="width:0%"></div></div>
+      </div>
+
+      <!-- DIVIDER -->
+      <div style="display:flex;align-items:center;gap:12px;margin:18px 0 14px">
+        <div style="flex:1;height:1px;background:var(--border)"></div>
+        <span style="font-size:11px;color:var(--t3);font-weight:700">OR PASTE TEXT MANUALLY</span>
+        <div style="flex:1;height:1px;background:var(--border)"></div>
+      </div>
+
+      ${threadSel}
+      <textarea class="ei" id="ei" placeholder="Paste full email text here — From / To / Date / Subject / body…"></textarea>
+      <div class="imp-actions">
+        <button class="btn btn-p" onclick="parseEmail()">⚡ Parse Text with Claude</button>
+        <button class="btn" onclick="$('ei').value='';selThread(null)">Clear</button>
+        <div class="api-wrap">
+          <span class="api-lbl">API Key:</span>
+          <input type="password" class="api-inp" id="akey" placeholder="sk-ant-…" oninput="checkKey()">
+        </div>
+      </div>
+      <div class="lb" id="lb"><div class="lf"></div></div>
+    </div>
+    <div id="pp" style="display:none">
+      <div class="sh">
+        <div class="st">Parsed Results — Review before importing</div>
+        <div style="display:flex;gap:8px"><button class="btn btn-sm" onclick="clearParsed()">Discard</button><button class="btn btn-y btn-sm" onclick="importParsed()">✓ Apply All</button></div>
+      </div>
+      <div id="pp-body"></div>
+    </div>
+    <div class="tips-grid" id="tips">
+      <div class="tip-card"><div class="tip-t">📧 Client auto-detection</div><div class="tip-b">Paste any email from a client. Claude matches the sender email to the WebLight Media database and identifies the business automatically — no manual input needed.</div></div>
+      <div class="tip-card"><div class="tip-t">🔗 Thread updates</div><div class="tip-b">Paste a follow-up email on an existing matter. Claude matches it to existing tasks and shows exactly what changed — status, deadline, notes — before you apply it.</div></div>
+      <div class="tip-card"><div class="tip-t">⭐ Service identification</div><div class="tip-b">Claude knows all WebLight Media services. It tags each task with the relevant service (Google Ads, SEO, Social Media, Website, etc.) for easy filtering.</div></div>
+      <div class="tip-card"><div class="tip-t">🚩 Unassigned flagging</div><div class="tip-b">If Claude can't find a team member in the email, it flags the task so you can assign it manually before anything falls through.</div></div>
+    </div>`;
+
+  // Restore API key
+  const sk=localStorage.getItem('wlm_k');
+  if(sk&&$('akey')){ $('akey').value=sk; checkKey(); }
+}
+
+function selThread(id){ selectedThreadId=id; renderImportView(); toast(id?'Thread selected':'Thread deselected','i'); }
+
+// ══════════════════════════════════════════════════════
+// CLAUDE API
+// ══════════════════════════════════════════════════════
+function checkKey(){
+  const k=$('akey')?$('akey').value.trim():'', on=k.startsWith('sk-ant-');
+  $('api-dot').classList.toggle('on',on);
+  $('api-txt').textContent=on?'Claude connected':'Claude not connected';
+  if(on) localStorage.setItem('wlm_k',k);
+}
+
+// Official team members — always use these canonical names
+const TEAM_MEMBERS = ['Abby','Emily','Sherine','Yehia','Mostafa','Jacob','Assmaa','David'];
+// Role map for display
+const TEAM_ROLES = {
+  'Abby':    'Director of Production',
+  'Emily':   'Social Media (transitioning)',
+  'Sherine': 'Social Media',
+  'Yehia':   'Operations / CEO Liaison',
+  'Mostafa': 'Production',
+  'Jacob':   'Team',
+  'Assmaa':  'Production',
+  'David':   'CEO'
+};
+
+function fuzzyName(a,b){
+  const al=(a||'').toLowerCase().trim(),bl=(b||'').toLowerCase().trim();
+  if(!al||!bl) return false;
+  if(al===bl) return true;
+  if(al.includes(bl)||bl.includes(al)) return true;
+  return al.split(/\s+/)[0]===bl.split(/\s+/)[0];
+}
+function resolveAssignee(name){
+  if(!name||!name.trim()) return '';
+  // First try to match against official team members
+  for(const tm of TEAM_MEMBERS){ if(fuzzyName(name,tm)) return tm; }
+  // Then try existing task assignees
+  const existing=[...new Set(tasks.map(t=>t.assignee).filter(Boolean))];
+  for(const ex of existing){ if(fuzzyName(name,ex)) return ex; }
+  return name;
+}
+
+async function parseEmail(){
+  const ei=$('ei'); if(!ei) return;
+  const text=ei.value.trim();
+  const key=($('akey')?$('akey').value.trim():'')||localStorage.getItem('wlm_k')||'';
+  if(!text){ toast('Paste email text first','e'); return; }
+  if(!key.startsWith('sk-ant-')){ toast('Enter your Anthropic API key (sk-ant-…)','e'); return; }
+
+  $('lb')&&$('lb').classList.add('on');
+  const pp=$('pp'); if(pp) pp.style.display='none';
+  const tipsel=$('tips'); if(tipsel) tipsel.style.display='none';
+
+  const td=today();
+  const selThr=selectedThreadId?threads.find(th=>th.id===selectedThreadId):null;
+  const existingMembers=[...new Set(tasks.map(t=>t.assignee).filter(Boolean))];
+  const existingTasks=tasks.map(t=>({id:t.id,title:t.title,assignee:t.assignee,client:t.client,subject:threads.find(th=>th.id===t.threadId)?.subject||''})).slice(0,30);
+  const clientContext=buildClientContext();
+
+  const prompt=`You are a work tracker AI for WebLight Media, a digital marketing agency.
+
+TODAY: ${td}
+
+== WEBLIGHT MEDIA CLIENT DATABASE ==
+Format: BusinessName|ContactPerson|email1,email2,...
+${clientContext}
+
+== WEBLIGHT MEDIA SERVICES ==
+${Object.entries(SERVICES_DB).map(([cat,svcs])=>`${cat}: ${svcs.join(', ')}`).join('\n')}
+
+== EXISTING TEAM MEMBERS ==
+${existingMembers.length?existingMembers.join(', '):'none yet'}
+
+== EXISTING TASKS (for update matching) ==
+${existingTasks.length?JSON.stringify(existingTasks):'none yet'}
+
+${selThr?`== SELECTED THREAD TO UPDATE == subject="${selThr.subject}" client="${selThr.client}" id="${selThr.id}"`:''}
+
+== INSTRUCTIONS ==
+Analyze the email/transcript below and return a JSON object:
+
+{
+  "threadSubject": "email subject line",
+  "threadClient": "matched business name from CLIENT DATABASE — look up sender/recipient emails and names against the database",
+  "threadClientContact": "contact person name from database",
+  "emailDate": "YYYY-MM-DD",
+  "emailFrom": "sender",
+  "emailSummary": "1 sentence summary",
+  "clientMatchMethod": "how you identified the client: email_match|name_match|domain_match|context|unknown",
+  "selectedThreadId": "${selThr?.id||null}",
+  "actions": [
+    {
+      "type": "new_task|update_task",
+      "matchTaskId": "existing task id for update_task, null for new",
+      "matchReason": "why matched (update_task only)",
+      "task": {
+        "title": "MUST follow this format: '[Email Subject or Key Topic]: [Action needed]' — e.g. 'RE: Google Ads Budget Review — Update campaign settings' or 'Website Redesign Proposal — Send revised quote'. Always start with the email subject line or the most identifiable keyword/topic from the email so the task is immediately recognizable when following up.",
+        "assignee": "WLM team member responsible — empty string if unknown, DO NOT guess",
+        "client": "business name from CLIENT DATABASE",
+        "category": "client-update|new-service|new-sale|follow-up|task",
+        "service": "most relevant WebLight Media service from the services list above",
+        "due": "YYYY-MM-DD (urgent=+1d, high=+3d, medium=+7d, low=+14d unless explicit)",
+        "status": "pending|in-progress|done",
+        "priority": "urgent|high|medium|low",
+        "reply": "replied|late|awaiting|n/a",
+        "emailDate": "YYYY-MM-DD",
+        "notes": "1-2 sentence context",
+        "tags": "comma-separated",
+        "statusUpdate": "what changed (update_task only)"
+      }
+    }
+  ]
+}
+
+CRITICAL RULES:
+1. ALWAYS match client by looking up sender/recipient email addresses in the CLIENT DATABASE first
+2. If email not in database, try matching business name or person name from database
+3. Use the exact business name from the database (e.g. "Baber Law" not "Nate Baber Law")
+4. Match assignee names fuzzily to existing team members — same person = use canonical name
+5. Leave assignee as "" if truly no team member is mentioned — never guess
+6. For service: pick the most specific match from the services list
+7. For category: client-update if client is requesting something, new-service if selling a new service, new-sale for deals, follow-up if chasing something, task for internal work
+8. TITLE FORMAT IS MANDATORY: Always use "[Subject/Topic]: [Action]" format. The first part before the colon must be the email subject line or a key recognizable phrase from the email (e.g. product name, campaign name, client request keyword). This makes it easy to find the original email thread when following up. Examples:
+   - "RE: Monthly SEO Report — Review and reply to client"
+   - "Website Photography Session — Schedule appointment with client"
+   - "Invoice #1042 Overdue — Follow up with payment request"
+   - "Google Ads Q2 Budget — Adjust campaign and confirm with client"
+   - "New Website Inquiry — Send proposal to lead"
+
+9. TEAM AUTO-ROUTING — WebLight Media team structure:
+   TEAM MEMBERS: Abby, Emily, Sherine, Yehia, Mostafa, Jacob, Assmaa, David (CEO)
+
+   ROUTING RULES (apply these automatically when assigning tasks):
+   - ABBY (Director of Production): assign anything related to websites, website edits, website development, website design, website maintenance, WordPress, hosting, production work, photo/video production, branding, print work, SEO projects, technical work. Abby also manages Assmaa and Mostafa — if a task is clearly execution/production work that Assmaa or Mostafa would do, still assign to Abby as the responsible owner unless the email specifically names Assmaa or Mostafa.
+   - ASSMAA: assign if email specifically mentions Assmaa by name for a task, or if Abby has delegated explicitly to Assmaa. Production/website execution tasks.
+   - MOSTAFA: assign if email specifically mentions Mostafa by name, or if Abby has delegated explicitly to Mostafa. Production/website execution tasks.
+   - EMILY: assign social media tasks only if Emily is explicitly mentioned. Emily is transitioning social media to Sherine.
+   - SHERINE: assign ALL social media tasks — Facebook, Instagram, LinkedIn, TikTok, Pinterest, content creation, short-form video, social media graphics, reels, posts, captions, content calendar, social media management. Sherine is taking over from Emily.
+   - YEHIA: assign tasks that involve direct communication with David (CEO), strategic discussions, CEO-level requests, business development, high-level client relationships. David talks to Yehia the most.
+   - JACOB: assign if specifically mentioned by name in the email.
+   - DAVID: CEO — only assign if David himself needs to take action (rare). Usually tasks flow from David → Yehia.
+
+   IF UNSURE: leave assignee blank and flag the task rather than guessing.
+
+Return ONLY valid JSON, no markdown.
+
+Email/Transcript:
+---
+${text}
+---`;
+
+  try{
+    const r=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:3000,messages:[{role:'user',content:prompt}]})
+    });
+    if(!r.ok){ const e=await r.json(); throw new Error(e.error?.message||'API error'); }
+    const data=await r.json();
+    const raw=data.content[0].text.trim().replace(/```json|```/g,'').trim();
+    const result=JSON.parse(raw);
+    parsed=[{result,rawText:text}];
+    renderParsedPreview(result);
+    const pp2=$('pp'); if(pp2){ pp2.style.display='block'; }
+    toast(`Found ${result.actions?.length||0} action${result.actions?.length!==1?'s':''}!`,'s');
+  }catch(e){ toast('Error: '+e.message,'e'); console.error(e); const t=$('tips'); if(t) t.style.display='grid'; }
+  finally{ $('lb')&&$('lb').classList.remove('on'); }
+}
+
+function renderParsedPreview(result){
+  const ppb=$('pp-body'); if(!ppb) return;
+  const actions=result.actions||[];
+  const dbMatch=lookupClientByName(result.threadClient);
+  ppb.innerHTML=`
+    <div style="background:var(--s2);border-radius:var(--r);padding:12px 16px;margin-bottom:14px;font-size:12px;border-left:3px solid var(--blue)">
+      <div style="font-weight:800;margin-bottom:4px">📧 ${esc(result.threadSubject||'(no subject)')} · <span style="color:var(--blue2)">${esc(result.threadClient||'unknown client')}</span></div>
+      <div style="color:var(--t2);margin-bottom:6px">${esc(result.emailFrom||'')} · ${esc(result.emailDate||'')} · ${esc(result.emailSummary||'')}</div>
+      ${dbMatch?`<span class="client-match">✓ Matched: ${esc(dbMatch.biz)} · ${esc(dbMatch.contact)} · ${esc(dbMatch.emails[0]||'')} <span style="font-size:9px;background:var(--blue);color:#fff;padding:1px 5px;border-radius:20px">${esc(result.clientMatchMethod||'matched')}</span></span>`:
+        result.threadClient?`<span class="badge bo">⚠ Client not in database — verify</span>`:
+        `<span class="badge br">✕ Client unknown — check manually</span>`}
+    </div>
+    ${actions.map(a=>`
+      <div class="pp-item ${a.type==='update_task'?'update':'new-task'}">
+        <div class="pp-action ${a.type==='update_task'?'update':'new'}">${a.type==='update_task'?`🔄 UPDATE EXISTING TASK${a.matchReason?` — ${esc(a.matchReason)}`:''}`:' ✨ NEW TASK'}</div>
+        <div style="font-weight:800;font-size:13px;margin-bottom:6px">${esc(a.task?.title||'')}</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;font-size:11px">
+          ${a.task?.assignee?`<span style="color:var(--blue);font-weight:700">👤 ${esc(a.task.assignee)}</span>`:`<span class="flag-badge">🚩 No assignee</span>`}
+          ${a.task?.client?`<span style="color:var(--blue2);font-weight:700">🏢 ${esc(a.task.client)}</span>`:''}
+          ${a.task?.service?`<span class="badge bb" style="font-size:10px">🔧 ${esc(a.task.service)}</span>`:''}
+          ${catB(a.task?.category)} ${priB(a.task?.priority)}
+          <span style="font-family:var(--mono);color:var(--t3)">due: ${a.task?.due||'—'}</span>
+          ${repB(a.task?.reply||'n/a')}
+        </div>
+        ${a.task?.statusUpdate?`<div style="margin-top:6px;font-size:11px;color:var(--orange);font-weight:700">📝 ${esc(a.task.statusUpdate)}</div>`:''}
+        ${a.task?.notes?`<div style="margin-top:5px;font-size:11px;color:var(--t2)">${esc(a.task.notes)}</div>`:''}
+      </div>`).join('')}`;
+}
+
+function importParsed(){
+  if(!parsed.length) return;
+
+  // Handle both batch (.eml array) and single (text paste)
+  const items = Array.isArray(parsed) && parsed[0]?.result ? parsed : [{result:parsed[0], rawText:''}];
+  let totalActions = 0;
+
+  items.forEach(({result, rawText}) => {
+    if(!result) return;
+    const actions = result.actions||[];
+    let threadId = selectedThreadId||result.selectedThreadId||null;
+
+    // Auto-match or create thread
+    if(!threadId||!threads.find(th=>th.id===threadId)){
+      const auto=threads.find(th=>
+        (result.threadSubject&&th.subject&&result.threadSubject.toLowerCase().includes(th.subject.toLowerCase().slice(0,20)))||
+        (result.threadClient&&th.client&&result.threadClient.toLowerCase()===th.client.toLowerCase())
+      );
+      if(auto) threadId=auto.id;
+      else{ threadId=uid(); threads.push({id:threadId,subject:result.threadSubject||'(no subject)',client:result.threadClient||'',emails:[]}); }
+    }
+    const thread=threads.find(th=>th.id===threadId);
+    if(thread){
+      thread.emails.push({date:result.emailDate||today(),from:result.emailFrom||'',summary:result.emailSummary||'',body:(rawText||'').slice(0,500)});
+      if(result.threadClient) thread.client=result.threadClient;
+      if(result.threadSubject) thread.subject=result.threadSubject;
+    }
+
+    actions.forEach(a=>{
+      const inc=a.task||{};
+      inc.assignee=resolveAssignee(inc.assignee);
+      if(a.type==='update_task'&&a.matchTaskId){
+        const idx=tasks.findIndex(t=>t.id===a.matchTaskId);
+        if(idx>-1){ const ex=tasks[idx]; tasks[idx]={...ex,...Object.fromEntries(Object.entries(inc).filter(([k,v])=>v!==undefined&&v!==null&&v!==''&&k!=='statusUpdate')),threadId,id:ex.id,created:ex.created}; }
+      } else {
+        tasks.unshift({...inc,id:uid(),threadId,created:new Date().toISOString()});
+      }
+      totalActions++;
+    });
+  });
+
+  saveAll(); parsed=[]; selectedThreadId=null;
+  clearEmlFiles();
+  const pp=$('pp'); if(pp) pp.style.display='none';
+  const ei=$('ei'); if(ei) ei.value='';
+  const tipsel=$('tips'); if(tipsel) tipsel.style.display='grid';
+  toast(`Imported ${totalActions} task${totalActions!==1?'s':''} from ${items.length} email${items.length!==1?'s':''}!`,'s');
+  switchView('tasks');
+}
+function clearParsed(){ parsed=[]; const pp=$('pp'); if(pp) pp.style.display='none'; const t=$('tips'); if(t) t.style.display='grid'; }
+
+// ══════════════════════════════════════════════════════
+// DETAIL PANEL
+// ══════════════════════════════════════════════════════
+function openDetail(id){
+  const t=tasks.find(x=>x.id===id); if(!t) return;
+  const td=today(),isOD=t.due&&t.due<td&&t.status!=='done';
+  const col=acolor(t.assignee||'?'),noA=!t.assignee||!t.assignee.trim();
+  const thread=threads.find(th=>th.id===t.threadId);
+  const dbClient=lookupClientByName(t.client)||lookupClientByEmail(t.clientEmail);
+  const daysLate=isOD?Math.round((new Date(td)-new Date(t.due))/86400000):0;
+  const daysLeft=t.due&&t.due>td?Math.round((new Date(t.due)-new Date(td))/86400000):0;
+
+  let fb='';
+  if(noA) fb=`<div class="follow-box urgent"><div class="follow-title urgent">🚩 Assign this task</div><div class="follow-body">No assignee found. Review the original email and assign to the right team member.</div></div>`;
+  else if(t.reply==='late') fb=`<div class="follow-box urgent"><div class="follow-title urgent">⚠️ Late reply — act now</div><div class="follow-body">${esc(t.assignee)} must contact ${esc(t.client||'the client')} immediately. Apologize for the delay and send the response. Reference the email from ${esc(t.emailDate||'—')}.</div></div>`;
+  else if(t.reply==='awaiting'&&t.emailDate&&t.emailDate<dplus(-1)){const d=Math.round((new Date(td)-new Date(t.emailDate))/86400000);fb=`<div class="follow-box warn"><div class="follow-title warn">📬 No reply for ${d} day${d!==1?'s':''}</div><div class="follow-body">${esc(t.assignee)} should respond to ${esc(t.client||'the client')} today. Even a holding reply ("working on it") is better than silence.</div></div>`;}
+  else if(isOD) fb=`<div class="follow-box urgent"><div class="follow-title urgent">🔴 Overdue by ${daysLate} day${daysLate!==1?'s':''}</div><div class="follow-body">Check in with ${esc(t.assignee||'assignee')} now. Escalate if blocked. Notify ${esc(t.client||'client')} of any delay.</div></div>`;
+  else if(t.due===td) fb=`<div class="follow-box warn"><div class="follow-title warn">📅 Due today</div><div class="follow-body">Check in with ${esc(t.assignee||'assignee')} before EOD and mark done when confirmed.</div></div>`;
+  else if(daysLeft<=2&&daysLeft>0) fb=`<div class="follow-box ok"><div class="follow-title ok">🔔 Due in ${daysLeft} day${daysLeft!==1?'s':''}</div><div class="follow-body">Send ${esc(t.assignee||'assignee')} a reminder today.</div></div>`;
+  else if(t.status==='done') fb=`<div class="follow-box ok"><div class="follow-title ok">✅ Completed</div><div class="follow-body">If a client deliverable, confirm with ${esc(t.client||'the client')} that they're satisfied.</div></div>`;
+
+  $('dbod').innerHTML=`
+    ${fb}
+    <div class="ds"><div class="dl">Task</div><div style="font-size:14px;font-weight:800;line-height:1.4">${esc(t.title)}</div>
+      ${t.service?`<div style="margin-top:5px"><span class="badge bb" style="font-size:10px">🔧 ${esc(t.service)}</span></div>`:''}
+    </div>
+    <div class="ds" style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div><div class="dl">Assignee</div>${noA?`<span class="flag-badge">🚩 Unassigned</span>`:`<div class="ac"><div class="av" style="background:${col}22;color:${col}">${ini(t.assignee)}</div><span style="font-weight:700">${esc(t.assignee)}</span></div>`}</div>
+      <div><div class="dl">Client</div>
+        <div style="font-weight:700;color:var(--blue2)">${esc(t.client||'—')}</div>
+        ${dbClient?`<div style="font-size:10px;color:var(--t3);margin-top:2px">👤 ${esc(dbClient.contact)}</div><div style="font-size:10px;color:var(--t3);font-family:var(--mono)">${esc(dbClient.emails[0]||'')}</div>`:''}
+      </div>
+    </div>
+    <div class="ds" style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div><div class="dl">Type</div>${catB(t.category)}</div>
+      <div><div class="dl">Priority</div>${priB(t.priority)}</div>
+    </div>
+    <div class="ds" style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div><div class="dl">Status</div>${statB(isOD?'overdue':t.status)}</div>
+      <div><div class="dl">Reply</div>${repB(t.reply||'n/a')}</div>
+    </div>
+    <div class="ds" style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div><div class="dl">Due Date</div><div style="font-family:var(--mono);font-size:12px;${isOD?'color:var(--red);font-weight:700':''}">${t.due||'—'}</div></div>
+      <div><div class="dl">Email Received</div><div style="font-family:var(--mono);font-size:12px">${t.emailDate||'—'}</div></div>
+    </div>
+    ${t.notes?`<div class="ds"><div class="dl">Notes</div><div class="dnote">${esc(t.notes).replace(/\n/g,'<br>')}</div></div>`:''}
+    ${t.tags?`<div class="ds"><div class="dl">Tags</div><div style="display:flex;gap:4px;flex-wrap:wrap">${t.tags.split(',').map(g=>`<span class="badge bgr" style="font-size:10px">${esc(g.trim())}</span>`).join('')}</div></div>`:''}
+    ${thread?`<div class="ds"><div class="dl">Email Thread (${thread.emails.length})</div>${thread.emails.map(e=>`<div class="th-item"><div class="th-meta">${esc(e.date||'?')} · ${esc(e.from||'?')}</div><div class="th-text">${esc(e.summary||'').slice(0,180)}${(e.summary||'').length>180?'…':''}</div></div>`).join('')}</div>`:''}
+    <div style="display:flex;gap:8px;margin-top:20px">
+      <button class="btn btn-p" style="flex:1" onclick="openModal('${t.id}')">Edit</button>
+      <button class="btn btn-red" onclick="delTask('${t.id}')">Delete</button>
+    </div>`;
+  $('dp').classList.add('open');
+}
+function closeDetail(){ $('dp').classList.remove('open'); }
+
+// ══════════════════════════════════════════════════════
+// TASK CRUD
+// ══════════════════════════════════════════════════════
+function openModal(id){
+  editId=id||null; $('mt').textContent=id?'Edit Task':'New Task';
+  const t=id?tasks.find(x=>x.id===id):null;
+  $('eid').value=id||''; $('ftitle').value=t?.title||''; $('fasgn').value=t?.assignee||'';
+  $('fcli').value=t?.client||''; $('fcat2').value=t?.category||'client-update';
+  $('fsvc').value=t?.service||''; $('fdue').value=t?.due||''; $('fstat').value=t?.status||'pending';
+  $('fpri').value=t?.priority||'medium'; $('frep').value=t?.reply||'awaiting';
+  $('fedate').value=t?.emailDate||''; $('fnotes').value=t?.notes||''; $('ftags').value=t?.tags||'';
+  // Populate email category dropdown
+  $('fecat').innerHTML=`<option value="">— None —</option>`+emailCategories.map(c=>`<option value="${c.id}" ${t?.emailCat===c.id?'selected':''}>${esc(c.label)}</option>`).join('');
+  $('svl').innerHTML=ALL_SERVICES.map(s=>`<option value="${esc(s)}">`).join('');
+  $('al').innerHTML=[...new Set(tasks.map(t=>t.assignee).filter(Boolean))].map(n=>`<option value="${esc(n)}">`).join('');
+  $('cl').innerHTML=CLIENT_DB.map(c=>`<option value="${esc(c.biz)}">`).join('');
+  $('tm').classList.add('open');
+}
+function closeModal(){ $('tm').classList.remove('open'); }
+function saveTask(){
+  const title=$('ftitle').value.trim(); if(!title){ toast('Title required','e'); return; }
+  const task={id:editId||uid(),title,assignee:$('fasgn').value.trim(),client:$('fcli').value.trim(),category:$('fcat2').value,service:$('fsvc').value.trim(),emailCat:$('fecat').value,emailDate:$('fedate').value,due:$('fdue').value,status:$('fstat').value,priority:$('fpri').value,reply:$('frep').value,notes:$('fnotes').value,tags:$('ftags').value,threadId:editId?(tasks.find(t=>t.id===editId)?.threadId||null):null,created:editId?(tasks.find(t=>t.id===editId)?.created||new Date().toISOString()):new Date().toISOString()};
+  if(editId){ tasks[tasks.findIndex(t=>t.id===editId)]=task; toast('Updated','s'); }
+  else{ tasks.unshift(task); toast('Task added','s'); }
+  saveAll(); closeModal(); renderAll();
+}
+function setDue(id, val){
+  const idx = tasks.findIndex(t=>t.id===id);
+  if(idx===-1) return;
+  tasks[idx].due = val;
+  saveAll();
+  renderAll();
+  toast(val ? 'Due date set to ' + val : 'Due date cleared', 's');
+}
+function delTask(id){ if(!confirm('Delete this task?')) return; tasks=tasks.filter(t=>t.id!==id); saveAll(); renderAll(); closeDetail(); toast('Deleted','i'); }
+
+// ══════════════════════════════════════════════════════
+// CALENDAR
+// ══════════════════════════════════════════════════════
+function cNav(d){ calDate=new Date(calDate.getFullYear(),calDate.getMonth()+d,1); renderCal(); }
+function cToday(){ calDate=new Date(); renderCal(); }
+function setCV(v,el){ calMode=v; document.querySelectorAll('.cvt').forEach(t=>t.classList.remove('active')); el.classList.add('active'); renderCal(); }
+function renderCal(){ $('cml').textContent=`${MONTHS[calDate.getMonth()]} ${calDate.getFullYear()}`; if(calMode==='month') renderMonthCal(); else if(calMode==='week') renderWeekCal(); else renderDayCal(); }
+function chipSt(t){ const td=today(); if(t.status==='done') return 'background:#e8f5e9;color:var(--green)'; if(t.due&&t.due<td) return 'background:#ffebee;color:var(--red)'; if(!t.assignee||!t.assignee.trim()) return 'background:#f3e5f5;color:var(--purple)'; const m={'client-update':'background:#e3f0fc;color:var(--blue)','new-service':'background:#fffde7;color:#7a6000','new-sale':'background:#e8f5e9;color:var(--green)','follow-up':'background:#fff3e0;color:var(--orange)','task':'background:#f3e5f5;color:var(--purple)'}; return m[t.category]||'background:var(--s3);color:var(--t2)'; }
+function renderMonthCal(){
+  const yr=calDate.getFullYear(),mo=calDate.getMonth(),first=new Date(yr,mo,1).getDay(),days=new Date(yr,mo+1,0).getDate(),td=today();
+  const dn=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  let h=`<div class="calgrid">`;
+  dn.forEach(d=>h+=`<div class="caldh">${d}</div>`);
+  for(let i=0;i<first;i++) h+=`<div class="calcel om"></div>`;
+  for(let d=1;d<=days;d++){
+    const ds=`${yr}-${String(mo+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const dt=tasks.filter(t=>t.due===ds),isT=ds===td;
+    h+=`<div class="calcel${isT?' tod':''}" data-date="${ds}"
+      ondragover="calDragOver(event,this)" ondragleave="calDragLeave(this)" ondrop="calDrop(event,'${ds}')">
+      <div class="caldn">${d}</div>
+      ${dt.slice(0,4).map(t=>`<a class="calchip" style="${chipSt(t)}"
+        draggable="true"
+        ondragstart="calDragStart(event,'${t.id}')"
+        ondragend="calDragEnd(event)"
+        onclick="if(!window._dragged)openDetail('${t.id}');window._dragged=false">${!t.assignee?'🚩':ini(t.assignee)} ${esc(t.title)}</a>`).join('')}
+      ${dt.length>4?`<div class="calmore">+${dt.length-4} more</div>`:''}
+    </div>`;
+  }
+  h+=`</div>`;
+  $('cbody').innerHTML=h;
+}
+function renderWeekCal(){ const ws=new Date(calDate);ws.setDate(calDate.getDate()-calDate.getDay()); const dn=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],td=today(); let h=`<div style="display:grid;grid-template-columns:65px repeat(7,1fr);border-top:1px solid var(--border)"><div style="border-right:1px solid var(--border);border-bottom:1px solid var(--border);padding:8px"></div>`; for(let i=0;i<7;i++){const d=new Date(ws);d.setDate(ws.getDate()+i);const ds=d.toISOString().slice(0,10),isT=ds===td;h+=`<div style="text-align:center;padding:9px 4px;border-right:${i<6?'1px solid var(--border)':'none'};border-bottom:1px solid var(--border);font-size:11px;${isT?'background:#e8f3fd;color:var(--blue);font-weight:800':'color:var(--t3);font-weight:700'}"><div>${dn[i]}</div><div style="font-size:15px">${d.getDate()}</div></div>`;} for(let hr=8;hr<19;hr++){h+=`<div style="border-right:1px solid var(--border);border-bottom:1px solid var(--border);padding:5px 7px;font-size:10px;color:var(--t3);font-family:var(--mono)">${String(hr).padStart(2,'0')}:00</div>`;for(let i=0;i<7;i++){const d=new Date(ws);d.setDate(ws.getDate()+i);const ds=d.toISOString().slice(0,10),dt=hr===9?tasks.filter(t=>t.due===ds):[];h+=`<div style="border-right:${i<6?'1px solid var(--border)':'none'};border-bottom:1px solid var(--border);min-height:44px;padding:3px">${dt.map(t=>`<a class="calchip" style="${chipSt(t)}" onclick="openDetail('${t.id}')">${esc(t.title).slice(0,22)}</a>`).join('')}</div>`;}} h+=`</div>`; $('cbody').innerHTML=h; }
+function renderDayCal(){ const ds=calDate.toISOString().slice(0,10),dt=tasks.filter(t=>t.due===ds); let h=`<div style="padding:20px">`; if(!dt.length) h+=`<div style="text-align:center;color:var(--t3);padding:48px">No tasks due on this day.</div>`; else h+=dt.map(t=>`<div style="background:var(--s2);border:1.5px solid var(--border);border-left:4px solid var(--blue);border-radius:var(--r);padding:14px 16px;margin-bottom:10px;cursor:pointer" onclick="openDetail('${t.id}')"><div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:8px"><div style="font-weight:800">${!t.assignee?'🚩 ':''} ${esc(t.title)}</div><div style="display:flex;gap:6px;flex-shrink:0">${catB(t.category)}${priB(t.priority)}</div></div><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">${statB(t.status)}${repB(t.reply||'n/a')}${t.assignee?`<span style="font-size:11px;font-weight:600;color:var(--t2)">${esc(t.assignee)}</span>`:`<span class="flag-badge">🚩 Unassigned</span>`}${t.client?`<span style="font-size:11px;font-weight:700;color:var(--blue)">🏢 ${esc(t.client)}</span>`:''}</div></div>`).join(''); h+=`</div>`; $('cbody').innerHTML=h; }
+
+// ══════════════════════════════════════════════════════
+// .EML FILE HANDLING
+// ══════════════════════════════════════════════════════
+let emlFiles = []; // Array of {name, size, content}
+
+function emlDragOver(e){
+  e.preventDefault(); e.stopPropagation();
+  const zone = document.getElementById('eml-drop-zone');
+  if(zone) zone.classList.add('drag-active');
+}
+function emlDragLeave(e){
+  e.preventDefault();
+  const zone = document.getElementById('eml-drop-zone');
+  if(zone) zone.classList.remove('drag-active');
+}
+function emlDrop(e){
+  e.preventDefault(); e.stopPropagation();
+  const zone = document.getElementById('eml-drop-zone');
+  if(zone){ zone.classList.remove('drag-active'); }
+  const files = Array.from(e.dataTransfer.files).filter(f =>
+    f.name.endsWith('.eml') || f.name.endsWith('.txt') || f.type === 'message/rfc822'
+  );
+  if(!files.length){ toast('Drop .eml email files here','e'); return; }
+  loadEmlFiles(files);
+}
+function emlFilePicked(fileList){
+  const files = Array.from(fileList);
+  if(!files.length) return;
+  loadEmlFiles(files);
+}
+
+function loadEmlFiles(files){
+  const promises = files.map(file => new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = e => resolve({ name: file.name, size: file.size, content: e.target.result });
+    reader.onerror = () => reject(file.name);
+    reader.readAsText(file);
+  }));
+  Promise.all(promises).then(results => {
+    emlFiles = [...emlFiles, ...results];
+    renderEmlFileList();
+    toast(`${results.length} email${results.length!==1?'s':''} loaded — ready to parse`, 's');
+  }).catch(err => toast('Error reading file: ' + err, 'e'));
+}
+
+function renderEmlFileList(){
+  const listWrap = document.getElementById('eml-file-list');
+  const inner    = document.getElementById('eml-files-inner');
+  const label    = document.getElementById('eml-count-label');
+  const zone     = document.getElementById('eml-drop-zone');
+  if(!listWrap||!inner) return;
+  if(!emlFiles.length){ listWrap.style.display='none'; if(zone) zone.classList.remove('has-files'); return; }
+  listWrap.style.display='block';
+  if(zone) zone.classList.add('has-files');
+  if(label) label.textContent = `${emlFiles.length} email${emlFiles.length!==1?'s':''} queued`;
+  inner.innerHTML = emlFiles.map((f,i) => `
+    <div class="eml-file-item">
+      <span class="eml-file-icon">📧</span>
+      <span class="eml-file-name">${esc(f.name)}</span>
+      <span class="eml-file-size">${(f.size/1024).toFixed(1)} KB</span>
+      <button class="eml-remove" onclick="removeEmlFile(${i})" title="Remove">✕</button>
+    </div>`).join('');
+}
+
+function removeEmlFile(idx){
+  emlFiles.splice(idx, 1);
+  renderEmlFileList();
+}
+function clearEmlFiles(){
+  emlFiles = [];
+  renderEmlFileList();
+  const inp = document.getElementById('eml-file-input');
+  if(inp) inp.value = '';
+}
+
+// Parse a raw .eml string into readable text for Claude
+function parseEmlToText(raw){
+  // Extract headers
+  const lines = raw.split(/\r?\n/);
+  let subject='', from='', to='', date='', bodyLines=[], inBody=false, inBase64=false;
+  let contentType='', boundary='', encoding='';
+
+  for(let i=0; i<lines.length; i++){
+    const line = lines[i];
+    if(!inBody){
+      if(line.trim()==='') { inBody=true; continue; }
+      if(/^Subject:/i.test(line))  subject = line.replace(/^Subject:\s*/i,'').trim();
+      else if(/^From:/i.test(line)) from    = line.replace(/^From:\s*/i,'').trim();
+      else if(/^To:/i.test(line))   to      = line.replace(/^To:\s*/i,'').trim();
+      else if(/^Date:/i.test(line)) date    = line.replace(/^Date:\s*/i,'').trim();
+      else if(/^Content-Type:/i.test(line)) contentType = line;
+      else if(/^Content-Transfer-Encoding:\s*base64/i.test(line)) inBase64=true;
+    } else {
+      if(inBase64) continue; // skip base64 encoded parts
+      if(/^--/.test(line)) continue; // skip boundaries
+      if(/^Content-/i.test(line)) continue; // skip content headers
+      if(line.trim()) bodyLines.push(line);
+      if(bodyLines.length > 100) break; // cap at 100 lines
+    }
+  }
+  const body = bodyLines.join('\n').slice(0, 3000);
+  return `From: ${from}\nTo: ${to}\nDate: ${date}\nSubject: ${subject}\n\n${body}`;
+}
+
+async function parseEmlFiles(){
+  const key = (document.getElementById('akey')?document.getElementById('akey').value.trim():'')||localStorage.getItem('wlm_k')||'';
+  if(!emlFiles.length){ toast('No files loaded','e'); return; }
+  if(!key.startsWith('sk-ant-')){ toast('Enter your Anthropic API key first','e'); return; }
+
+  const prog = document.getElementById('parse-progress');
+  const progFill = document.getElementById('prog-fill');
+  const progLabel = document.getElementById('prog-label');
+  if(prog) prog.classList.add('show');
+
+  const allParsedActions = [];
+  const allThreadData = [];
+
+  for(let i=0; i<emlFiles.length; i++){
+    const f = emlFiles[i];
+    const pct = Math.round(((i+1)/emlFiles.length)*100);
+    if(progLabel) progLabel.textContent = `Reading ${f.name} (${i+1}/${emlFiles.length})…`;
+    if(progFill)  progFill.style.width  = pct + '%';
+
+    const emailText = parseEmlToText(f.content);
+
+    try{
+      const td=today();
+      const existingMembers=[...new Set([...TEAM_MEMBERS,...tasks.map(t=>t.assignee).filter(Boolean)])];
+      const existingTasks=tasks.map(t=>({id:t.id,title:t.title,assignee:t.assignee,client:t.client})).slice(0,20);
+      const clientCtx = buildClientContext();
+
+      const prompt=`You are a work tracker AI for WebLight Media, a digital marketing agency.
+
+TODAY: ${td}
+
+== WEBLIGHT MEDIA CLIENT DATABASE ==
+Format: BusinessName|ContactPerson|email1,email2,...
+${clientCtx}
+
+== WEBLIGHT MEDIA SERVICES ==
+${Object.entries(SERVICES_DB).map(([cat,svcs])=>`${cat}: ${svcs.join(', ')}`).join('\n')}
+
+== TEAM & AUTO-ROUTING RULES ==
+- ABBY (Director of Production): websites, web edits, web dev, WordPress, hosting, production, photo/video, branding, SEO projects, technical tasks. Also manages Assmaa and Mostafa.
+- ASSMAA: production/website execution if specifically named or delegated by Abby
+- MOSTAFA: production/website execution if specifically named or delegated by Abby
+- EMILY: social media ONLY if explicitly named (transitioning to Sherine)
+- SHERINE: ALL social media — Facebook, Instagram, LinkedIn, TikTok, Pinterest, content, reels, posts, captions, graphics, short-form video, social media management
+- YEHIA: CEO-level requests from David, strategic discussions, business development, anything David communicates
+- JACOB: if specifically named
+- DAVID: CEO — only if David himself must act
+
+== EXISTING TASKS (for update matching) ==
+${JSON.stringify(existingTasks)}
+
+Analyze this email and return JSON:
+{
+  "threadSubject": "subject line",
+  "threadClient": "matched client biz name from database",
+  "threadClientContact": "contact name",
+  "emailDate": "YYYY-MM-DD",
+  "emailFrom": "sender",
+  "emailSummary": "1 sentence",
+  "clientMatchMethod": "email_match|name_match|domain_match|context|unknown",
+  "actions": [
+    {
+      "type": "new_task|update_task",
+      "matchTaskId": null,
+      "matchReason": "",
+      "task": {
+        "title": "[Email Subject or Key Topic]: [Action needed]",
+        "assignee": "auto-route per rules above — empty string if truly unclear",
+        "client": "from database",
+        "category": "client-update|new-service|new-sale|follow-up|task",
+        "service": "specific WLM service",
+        "emailCat": "prod|upd|sales|admin|other",
+        "due": "YYYY-MM-DD",
+        "status": "pending|in-progress|done",
+        "priority": "urgent|high|medium|low",
+        "reply": "replied|late|awaiting|n/a",
+        "emailDate": "YYYY-MM-DD",
+        "notes": "1-2 sentence context",
+        "tags": "comma-separated"
+      }
+    }
+  ]
+}
+
+CRITICAL: Always match client emails against the database. Use the routing rules to assign automatically. Title must start with email subject or key topic.
+Return ONLY valid JSON.
+
+Email:
+---
+${emailText}
+---`;
+
+      const r = await fetch('https://api.anthropic.com/v1/messages',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+        body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1500,messages:[{role:'user',content:prompt}]})
+      });
+      if(!r.ok){ const e=await r.json(); throw new Error(e.error?.message||'API error'); }
+      const data = await r.json();
+      const raw  = data.content[0].text.trim().replace(/\`\`\`json|\`\`\`/g,'').trim();
+      const result = JSON.parse(raw);
+      allParsedActions.push({result, rawText:emailText, fileName:f.name});
+    } catch(err){
+      console.error('Error parsing', f.name, err);
+      toast('Error on ' + f.name + ': ' + err.message, 'e');
+    }
+
+    // Small delay to avoid rate limiting
+    if(i < emlFiles.length-1) await new Promise(res=>setTimeout(res,400));
+  }
+
+  if(prog) prog.classList.remove('show');
+
+  if(!allParsedActions.length){ toast('No tasks extracted','e'); return; }
+
+  // Show batch preview
+  parsed = allParsedActions;
+  renderBatchPreview(allParsedActions);
+  const pp = document.getElementById('pp');
+  if(pp) pp.style.display='block';
+  const tips = document.getElementById('tips');
+  if(tips) tips.style.display='none';
+  toast(`Parsed ${emlFiles.length} emails — found ${allParsedActions.reduce((s,p)=>s+(p.result.actions?.length||0),0)} tasks`, 's');
+}
+
+function renderBatchPreview(batch){
+  const ppb = document.getElementById('pp-body'); if(!ppb) return;
+  const totalTasks = batch.reduce((s,p)=>s+(p.result.actions?.length||0),0);
+  ppb.innerHTML = `
+    <div style="background:var(--s2);border-radius:var(--r);padding:12px 16px;margin-bottom:14px;font-size:12px;border-left:3px solid var(--blue)">
+      <div style="font-weight:800;margin-bottom:2px">📦 ${batch.length} email${batch.length!==1?'s':''} parsed · ${totalTasks} task${totalTasks!==1?'s':''} found</div>
+    </div>
+    ${batch.map((p,bi)=>{
+      const result=p.result, actions=result.actions||[];
+      const dbMatch=lookupClientByName(result.threadClient);
+      return `
+        <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);margin-bottom:12px;overflow:hidden">
+          <div style="background:var(--s2);padding:10px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <span style="font-size:11px;font-weight:800">📧 ${esc(result.threadSubject||p.fileName)}</span>
+            <span style="font-size:11px;color:var(--blue2);font-weight:700">${esc(result.threadClient||'unknown client')}</span>
+            <span style="font-size:10px;color:var(--t3)">${esc(result.emailDate||'')} · ${esc(result.emailFrom||'')}</span>
+            ${dbMatch?`<span class="client-match">✓ ${esc(dbMatch.biz)}</span>`:'<span class="badge bo" style="font-size:10px">⚠ Verify client</span>'}
+          </div>
+          <div style="padding:10px 14px">
+            ${actions.length===0?`<div style="font-size:12px;color:var(--t3);padding:8px 0">No tasks found in this email</div>`:''}
+            ${actions.map(a=>`
+              <div class="pp-item ${a.type==='update_task'?'update':'new-task'}" style="margin-bottom:8px">
+                <div class="pp-action ${a.type==='update_task'?'update':'new'}">${a.type==='update_task'?'🔄 UPDATE':'✨ NEW TASK'}</div>
+                <div style="font-weight:800;font-size:12px;margin-bottom:5px">${esc(a.task?.title||'')}</div>
+                <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;font-size:11px">
+                  ${a.task?.assignee?`<span style="background:${acolor(a.task.assignee)}22;color:${acolor(a.task.assignee)};padding:2px 8px;border-radius:20px;font-weight:700">👤 ${esc(a.task.assignee)}</span>`:`<span class="flag-badge">🚩 Unassigned</span>`}
+                  ${a.task?.client?`<span style="color:var(--blue2);font-weight:700">🏢 ${esc(a.task.client)}</span>`:''}
+                  ${a.task?.service?`<span class="badge bb" style="font-size:10px">${esc(a.task.service)}</span>`:''}
+                  ${catB(a.task?.category)} ${priB(a.task?.priority)}
+                  ${repB(a.task?.reply||'n/a')}
+                  <span style="font-family:var(--mono);color:var(--t3);font-size:10px">due: ${a.task?.due||'—'}</span>
+                </div>
+                ${a.task?.notes?`<div style="margin-top:4px;font-size:11px;color:var(--t2)">${esc(a.task.notes)}</div>`:''}
+              </div>`).join('')}
+          </div>
+        </div>`;
+    }).join('')}`;
+}
+
+// ══════════════════════════════════════════════════════
+// DRAG & DROP CALENDAR
+// ══════════════════════════════════════════════════════
+let _dragTaskId = null;
+
+function calDragStart(e, taskId){
+  _dragTaskId = taskId;
+  window._dragged = true;
+  e.dataTransfer.effectAllowed = 'move';
+  e.dataTransfer.setData('text/plain', taskId);
+  setTimeout(()=>{ if(e.target) e.target.classList.add('dragging'); }, 0);
+  // Create ghost label
+  const t = tasks.find(x=>x.id===taskId);
+  const ghost = document.createElement('div');
+  ghost.className = 'drag-ghost';
+  ghost.textContent = (t?.title||'Task').slice(0,30);
+  ghost.id = 'drag-ghost';
+  document.body.appendChild(ghost);
+  e.dataTransfer.setDragImage(ghost, 0, 0);
+}
+
+function calDragEnd(e){
+  if(e.target) e.target.classList.remove('dragging');
+  const ghost = document.getElementById('drag-ghost');
+  if(ghost) ghost.remove();
+  document.querySelectorAll('.calcel.drag-over').forEach(el=>el.classList.remove('drag-over'));
+  setTimeout(()=>{ window._dragged = false; }, 100);
+}
+
+function calDragOver(e, cell){
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  document.querySelectorAll('.calcel.drag-over').forEach(el=>el.classList.remove('drag-over'));
+  cell.classList.add('drag-over');
+}
+
+function calDragLeave(cell){
+  cell.classList.remove('drag-over');
+}
+
+function calDrop(e, newDate){
+  e.preventDefault();
+  const taskId = e.dataTransfer.getData('text/plain') || _dragTaskId;
+  if(!taskId) return;
+  const idx = tasks.findIndex(t=>t.id===taskId);
+  if(idx===-1) return;
+  const oldDate = tasks[idx].due;
+  tasks[idx].due = newDate;
+  saveAll();
+  renderCal();
+  toast(`Moved to ${newDate}${oldDate?' (was '+oldDate+')':''}`, 's');
+  _dragTaskId = null;
+}
+
+// ══════════════════════════════════════════════════════
+// TOAST
+// ══════════════════════════════════════════════════════
+function toast(msg,type='i'){ const c=$('tc'),el=document.createElement('div');el.className=`toast ${type}`;const icons={s:'✓',e:'✕',i:'ℹ'},cols={s:'var(--green)',e:'var(--red)',i:'var(--blue)'};el.innerHTML=`<span style="font-size:14px;font-weight:800;color:${cols[type]||cols.i}">${icons[type]||'ℹ'}</span> ${esc(msg)}`;c.appendChild(el);setTimeout(()=>{el.style.opacity='0';el.style.transition='opacity .3s';setTimeout(()=>el.remove(),300);},3500); }
+
+// ══════════════════════════════════════════════════════
+// INIT — always re-persist on load to cement any previous changes
+// ══════════════════════════════════════════════════════
+(function init(){
+  // Re-save immediately so any data already in storage is confirmed
+  saveAll();
+
+  // Restore API key
+  const sk=localStorage.getItem('wlm_k');
+  if(sk){
+    $('api-dot').classList.toggle('on',sk.startsWith('sk-ant-'));
+    $('api-txt').textContent=sk.startsWith('sk-ant-')?'Claude connected':'Claude not connected';
+  }
+
+  // Auto-save every 30s as belt-and-suspenders
+  setInterval(saveAll, 30000);
+
+  switchView('tasks');
+})();
+</script>
+</body>
+</html>
