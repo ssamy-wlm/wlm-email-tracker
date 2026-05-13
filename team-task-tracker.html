@@ -759,7 +759,7 @@ const MONTHS = ['January','February','March','April','May','June','July','August
 const $ = id => document.getElementById(id);
 const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 function ini(n){ return (n||'?').split(/[\s@.]+/).slice(0,2).map(w=>w[0]||'').join('').toUpperCase()||'?'; }
-function acolor(n){ let h=0; for(let c of(n||''))h=(h*31+c.charCodeAt(0))&0xffff; return AVC[h%AVC.length]; }
+function acolor(n){ const cat=TEAM_CATEGORY[n]; if(cat) return CAT_COLOR[cat]; let h=0; for(let c of(n||''))h=(h*31+c.charCodeAt(0))&0xffff; return AVC[h%AVC.length]; }
 function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
 function today(){ return new Date().toISOString().slice(0,10); }
 function dplus(n){ return new Date(Date.now()+n*86400000).toISOString().slice(0,10); }
@@ -1023,13 +1023,14 @@ function renderSidebar(){
   const assignees=[...new Set(tasks.map(t=>t.assignee).filter(Boolean))].sort();
   const clients=[...new Set(tasks.map(t=>t.client).filter(Boolean))].sort();
   // Always show full team — even before emails are imported
-  const allTeam = [...new Set([...TEAM_MEMBERS, ...assignees])];
-  $('sb-team').innerHTML=allTeam.map(n=>{
+  const extraAssignees = assignees.filter(n=>!TEAM_MEMBERS.includes(n));
+  const allTeam = [...TEAM_MEMBERS, ...extraAssignees];
+  function renderMember(n){
     const col=acolor(n),op=tasks.filter(t=>t.assignee===n&&t.status!=='done').length;
     const late=tasks.filter(t=>t.assignee===n&&t.reply==='late').length;
     const role=TEAM_ROLES[n]||'';
     return`<div class="sc" onclick="filterBy('a','${esc(n)}')">
-      <div class="av" style="background:${col}33;color:${col};font-size:9px;width:22px;height:22px">${ini(n)}</div>
+      <div class="av" style="background:${col}33;color:${col};font-size:9px;width:22px;height:22px;border-radius:6px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-weight:800">${ini(n)}</div>
       <div style="flex:1;min-width:0">
         <div class="sn">${esc(n)}</div>
         ${role?`<div style="font-size:9px;color:rgba(255,255,255,0.3);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(role)}</div>`:''}
@@ -1037,7 +1038,15 @@ function renderSidebar(){
       ${op?`<span class="sk">${op}</span>`:''}
       ${late?`<span class="sw">⚠</span>`:''}
     </div>`;
-  }).join('');
+  }
+  const ceos      = allTeam.filter(n=>TEAM_CATEGORY[n]==='ceo');
+  const directors = allTeam.filter(n=>TEAM_CATEGORY[n]==='director');
+  const rest      = allTeam.filter(n=>TEAM_CATEGORY[n]==='team'||!TEAM_CATEGORY[n]);
+  const mkLabel = t=>`<div class="ng" style="padding-top:10px">${t}</div>`;
+  $('sb-team').innerHTML=
+    (ceos.length      ? mkLabel('CEO')       + ceos.map(renderMember).join('')       : '')+
+    (directors.length ? mkLabel('Directors') + directors.map(renderMember).join('')  : '')+
+    (rest.length      ? mkLabel('Team')      + rest.map(renderMember).join('')       : '');
   $('sb-clients').innerHTML=clients.length?clients.slice(0,7).map(n=>{
     const op=tasks.filter(t=>t.client===n&&t.status!=='done').length;
     return`<div class="sc" onclick="filterBy('c','${esc(n)}')"><span style="font-size:10px">🏢</span><span class="sn" style="font-size:11px">${esc(n)}</span>${op?`<span class="sk">${op}</span>`:''}</div>`;
@@ -1205,7 +1214,7 @@ function checkKey(){
 }
 
 // Official team members — always use these canonical names
-const TEAM_MEMBERS = ['Abby','Emily','Sherine','Yehia','Mostafa','Jacob','Assmaa','David'];
+const TEAM_MEMBERS = ['David','Abby','Jacob','Sarah','Emily','Sherine','Yehia','Mostafa','Assmaa'];
 // Role map for display
 const TEAM_ROLES = {
   'Abby':    'Director of Production',
@@ -1214,9 +1223,22 @@ const TEAM_ROLES = {
   'Yehia':   'Sales & Marketing Specialist',
   'Mostafa': 'Ads & SEO Expert',
   'Jacob':   'Director of Finance',
+  'Sarah':   'Director of HR & Systems (Operations)',
   'Assmaa':  'Copywriting & Webmastering Specialist',
   'David':   'CEO'
 };
+const TEAM_CATEGORY = {
+  'David':   'ceo',
+  'Abby':    'director',
+  'Jacob':   'director',
+  'Sarah':   'director',
+  'Emily':   'team',
+  'Sherine': 'team',
+  'Yehia':   'team',
+  'Mostafa': 'team',
+  'Assmaa':  'team'
+};
+const CAT_COLOR = { ceo:'#FFD600', director:'#42A5F5', team:'#69F0AE' };
 
 function fuzzyName(a,b){
   const al=(a||'').toLowerCase().trim(),bl=(b||'').toLowerCase().trim();
@@ -1323,7 +1345,7 @@ CRITICAL RULES:
    - "New Website Inquiry — Send proposal to lead"
 
 9. TEAM AUTO-ROUTING — WebLight Media team structure:
-   TEAM MEMBERS: Abby, Emily, Sherine, Yehia, Mostafa, Jacob, Assmaa, David (CEO)
+   TEAM MEMBERS: Abby, Emily, Sherine, Yehia, Mostafa, Jacob, Sarah, Assmaa, David (CEO)
 
    ROUTING RULES (apply these automatically when assigning tasks):
    - ABBY (Director of Production): assign anything related to websites, website edits, website development, website design, website maintenance, WordPress, hosting, production work, photo/video production, branding, print work, SEO projects, technical work. Abby also manages Assmaa and Mostafa — if a task is clearly execution/production work that Assmaa or Mostafa would do, still assign to Abby as the responsible owner unless the email specifically names Assmaa or Mostafa.
@@ -1333,6 +1355,7 @@ CRITICAL RULES:
    - SHERINE: assign ALL social media tasks — Facebook, Instagram, LinkedIn, TikTok, Pinterest, content creation, short-form video, social media graphics, reels, posts, captions, content calendar, social media management. Sherine is taking over from Emily.
    - YEHIA (Sales & Marketing Specialist): assign sales leads, new client inquiries, proposals, quotes, marketing strategy, client pitches, business development, and tasks involving direct communication with David (CEO) or CEO-level requests.
    - JACOB (Director of Finance): assign if specifically mentioned by name, or for invoicing, billing, payments, financial reports, accounting, budget approvals, financial follow-ups.
+   - SARAH (Director of HR & Systems / Operations): assign HR tasks, hiring, onboarding, staff management, internal operations, systems, processes, team coordination, or if Sarah is specifically mentioned by name.
    - DAVID (CEO): assign if David himself has explicitly written a reminder or note for himself (e.g. email is from David to himself, or David wrote "remind me to…", "I need to…", "follow up on…"). Also assign CEO-level decisions that only David can make. Usually tasks flow from David → Yehia, but when David is clearly setting his own reminder, assign directly to David.
 
    IF UNSURE: leave assignee blank and flag the task rather than guessing.
@@ -1718,6 +1741,7 @@ ${Object.entries(SERVICES_DB).map(([cat,svcs])=>`${cat}: ${svcs.join(', ')}`).jo
 - SHERINE: ALL social media — Facebook, Instagram, LinkedIn, TikTok, Pinterest, content, reels, posts, captions, graphics, short-form video, social media management
 - YEHIA (Sales & Marketing Specialist): sales leads, new client inquiries, proposals, quotes, marketing strategy, client pitches, business development, CEO-level requests from David, strategic discussions
 - JACOB (Director of Finance): if specifically named, or for invoicing, billing, payments, financial reports, accounting, budget approvals, financial follow-ups
+- SARAH (Director of HR & Systems / Operations): HR, hiring, onboarding, staff management, internal operations, systems, processes, team coordination, or if specifically named
 - DAVID (CEO): assign if David wrote a reminder for himself (email from David to himself, "remind me to…", "I need to…", "follow up on…"), or for CEO-only decisions. Otherwise tasks flow David → Yehia.
 
 == EXISTING TASKS (for update matching) ==
