@@ -1214,7 +1214,7 @@ function checkKey(){
 }
 
 // Official team members — always use these canonical names
-const TEAM_MEMBERS = ['David','Abby','Jacob','Emily','Sherine','Yehia','Mostafa','Assmaa'];
+const TEAM_MEMBERS = ['David','Abby','Jacob','Sarah','Emily','Sherine','Yehia','Mostafa','Assmaa'];
 // Role map for display
 const TEAM_ROLES = {
   'Abby':    'Director of Production',
@@ -1223,6 +1223,7 @@ const TEAM_ROLES = {
   'Yehia':   'Sales & Marketing Specialist',
   'Mostafa': 'Ads & SEO Expert',
   'Jacob':   'Director of Finance',
+  'Sarah':   'Director of HR & Systems (Operations)',
   'Assmaa':  'Copywriting & Webmastering Specialist',
   'David':   'CEO'
 };
@@ -1230,6 +1231,7 @@ const TEAM_CATEGORY = {
   'David':   'ceo',
   'Abby':    'director',
   'Jacob':   'director',
+  'Sarah':   'director',
   'Emily':   'team',
   'Sherine': 'team',
   'Yehia':   'team',
@@ -1343,7 +1345,7 @@ CRITICAL RULES:
    - "New Website Inquiry — Send proposal to lead"
 
 9. TEAM AUTO-ROUTING — WebLight Media team structure:
-   TEAM MEMBERS: Abby, Emily, Sherine, Yehia, Mostafa, Jacob, Assmaa, David (CEO)
+   TEAM MEMBERS: Abby, Emily, Sherine, Yehia, Mostafa, Jacob, Sarah, Assmaa, David (CEO)
 
    ROUTING RULES (apply these automatically when assigning tasks):
    - ABBY (Director of Production): assign anything related to websites, website edits, website development, website design, website maintenance, WordPress, hosting, production work, photo/video production, branding, print work, SEO projects, technical work. Abby also manages Assmaa and Mostafa — if a task is clearly execution/production work that Assmaa or Mostafa would do, still assign to Abby as the responsible owner unless the email specifically names Assmaa or Mostafa.
@@ -1353,6 +1355,7 @@ CRITICAL RULES:
    - SHERINE: assign ALL social media tasks — Facebook, Instagram, LinkedIn, TikTok, Pinterest, content creation, short-form video, social media graphics, reels, posts, captions, content calendar, social media management. Sherine is taking over from Emily.
    - YEHIA (Sales & Marketing Specialist): assign sales leads, new client inquiries, proposals, quotes, marketing strategy, client pitches, business development, and tasks involving direct communication with David (CEO) or CEO-level requests.
    - JACOB (Director of Finance): assign if specifically mentioned by name, or for invoicing, billing, payments, financial reports, accounting, budget approvals, financial follow-ups.
+   - SARAH (Director of HR & Systems / Operations): assign HR tasks, hiring, onboarding, staff management, internal operations, systems, processes, team coordination, or if Sarah is specifically mentioned by name.
    - DAVID (CEO): assign if David himself has explicitly written a reminder or note for himself (e.g. email is from David to himself, or David wrote "remind me to…", "I need to…", "follow up on…"). Also assign CEO-level decisions that only David can make. Usually tasks flow from David → Yehia, but when David is clearly setting his own reminder, assign directly to David.
 
    IF UNSURE: leave assignee blank and flag the task rather than guessing.
@@ -1738,6 +1741,7 @@ ${Object.entries(SERVICES_DB).map(([cat,svcs])=>`${cat}: ${svcs.join(', ')}`).jo
 - SHERINE: ALL social media — Facebook, Instagram, LinkedIn, TikTok, Pinterest, content, reels, posts, captions, graphics, short-form video, social media management
 - YEHIA (Sales & Marketing Specialist): sales leads, new client inquiries, proposals, quotes, marketing strategy, client pitches, business development, CEO-level requests from David, strategic discussions
 - JACOB (Director of Finance): if specifically named, or for invoicing, billing, payments, financial reports, accounting, budget approvals, financial follow-ups
+- SARAH (Director of HR & Systems / Operations): HR, hiring, onboarding, staff management, internal operations, systems, processes, team coordination, or if specifically named
 - DAVID (CEO): assign if David wrote a reminder for himself (email from David to himself, "remind me to…", "I need to…", "follow up on…"), or for CEO-only decisions. Otherwise tasks flow David → Yehia.
 
 == EXISTING TASKS (for update matching) ==
