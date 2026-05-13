@@ -1211,10 +1211,10 @@ const TEAM_ROLES = {
   'Abby':    'Director of Production',
   'Emily':   'Social Media (transitioning)',
   'Sherine': 'Social Media',
-  'Yehia':   'Operations / CEO Liaison',
-  'Mostafa': 'Production',
-  'Jacob':   'Team',
-  'Assmaa':  'Production',
+  'Yehia':   'Sales & Marketing Specialist',
+  'Mostafa': 'Ads & SEO Expert',
+  'Jacob':   'Director of Finance',
+  'Assmaa':  'Copywriting & Webmastering Specialist',
   'David':   'CEO'
 };
 
@@ -1327,13 +1327,13 @@ CRITICAL RULES:
 
    ROUTING RULES (apply these automatically when assigning tasks):
    - ABBY (Director of Production): assign anything related to websites, website edits, website development, website design, website maintenance, WordPress, hosting, production work, photo/video production, branding, print work, SEO projects, technical work. Abby also manages Assmaa and Mostafa — if a task is clearly execution/production work that Assmaa or Mostafa would do, still assign to Abby as the responsible owner unless the email specifically names Assmaa or Mostafa.
-   - ASSMAA: assign if email specifically mentions Assmaa by name for a task, or if Abby has delegated explicitly to Assmaa. Production/website execution tasks.
-   - MOSTAFA: assign if email specifically mentions Mostafa by name, or if Abby has delegated explicitly to Mostafa. Production/website execution tasks.
+   - ASSMAA (Copywriting & Webmastering Specialist): assign copywriting tasks (website copy, blog posts, email copy, content writing), webmastering tasks, or if Abby has delegated explicitly to Assmaa. Also assign if Assmaa is specifically named in the email.
+   - MOSTAFA (Ads & SEO Expert): assign Google Ads, Facebook Ads, paid advertising, PPC, ad campaigns, SEO audits, keyword research, search ranking, or if Mostafa is specifically named or Abby has delegated to Mostafa.
    - EMILY: assign social media tasks only if Emily is explicitly mentioned. Emily is transitioning social media to Sherine.
    - SHERINE: assign ALL social media tasks — Facebook, Instagram, LinkedIn, TikTok, Pinterest, content creation, short-form video, social media graphics, reels, posts, captions, content calendar, social media management. Sherine is taking over from Emily.
-   - YEHIA: assign tasks that involve direct communication with David (CEO), strategic discussions, CEO-level requests, business development, high-level client relationships. David talks to Yehia the most.
-   - JACOB: assign if specifically mentioned by name in the email.
-   - DAVID: CEO — only assign if David himself needs to take action (rare). Usually tasks flow from David → Yehia.
+   - YEHIA (Sales & Marketing Specialist): assign sales leads, new client inquiries, proposals, quotes, marketing strategy, client pitches, business development, and tasks involving direct communication with David (CEO) or CEO-level requests.
+   - JACOB (Director of Finance): assign if specifically mentioned by name, or for invoicing, billing, payments, financial reports, accounting, budget approvals, financial follow-ups.
+   - DAVID (CEO): assign if David himself has explicitly written a reminder or note for himself (e.g. email is from David to himself, or David wrote "remind me to…", "I need to…", "follow up on…"). Also assign CEO-level decisions that only David can make. Usually tasks flow from David → Yehia, but when David is clearly setting his own reminder, assign directly to David.
 
    IF UNSURE: leave assignee blank and flag the task rather than guessing.
 
@@ -1712,13 +1712,13 @@ ${Object.entries(SERVICES_DB).map(([cat,svcs])=>`${cat}: ${svcs.join(', ')}`).jo
 
 == TEAM & AUTO-ROUTING RULES ==
 - ABBY (Director of Production): websites, web edits, web dev, WordPress, hosting, production, photo/video, branding, SEO projects, technical tasks. Also manages Assmaa and Mostafa.
-- ASSMAA: production/website execution if specifically named or delegated by Abby
-- MOSTAFA: production/website execution if specifically named or delegated by Abby
+- ASSMAA (Copywriting & Webmastering Specialist): copywriting, website copy, blog posts, email copy, content writing, webmastering, or if specifically named or delegated by Abby
+- MOSTAFA (Ads & SEO Expert): Google Ads, Facebook Ads, paid advertising, PPC, ad campaigns, SEO audits, keyword research, search ranking, or if specifically named or delegated by Abby
 - EMILY: social media ONLY if explicitly named (transitioning to Sherine)
 - SHERINE: ALL social media — Facebook, Instagram, LinkedIn, TikTok, Pinterest, content, reels, posts, captions, graphics, short-form video, social media management
-- YEHIA: CEO-level requests from David, strategic discussions, business development, anything David communicates
-- JACOB: if specifically named
-- DAVID: CEO — only if David himself must act
+- YEHIA (Sales & Marketing Specialist): sales leads, new client inquiries, proposals, quotes, marketing strategy, client pitches, business development, CEO-level requests from David, strategic discussions
+- JACOB (Director of Finance): if specifically named, or for invoicing, billing, payments, financial reports, accounting, budget approvals, financial follow-ups
+- DAVID (CEO): assign if David wrote a reminder for himself (email from David to himself, "remind me to…", "I need to…", "follow up on…"), or for CEO-only decisions. Otherwise tasks flow David → Yehia.
 
 == EXISTING TASKS (for update matching) ==
 ${JSON.stringify(existingTasks)}
