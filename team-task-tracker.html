@@ -172,7 +172,7 @@ tr:hover td{background:var(--s2)}
 .cvtabs{display:flex;gap:3px;background:var(--s3);border-radius:8px;padding:3px}
 .cvt{padding:5px 12px;border-radius:6px;font-size:12px;cursor:pointer;color:var(--t2);transition:all .15s;font-weight:700}
 .cvt.active{background:var(--blue);color:#fff}
-.calgrid{display:grid;grid-template-columns:repeat(7,1fr)}
+.calgrid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr))}
 .caldh{text-align:center;padding:10px;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--t3);border-bottom:1.5px solid var(--border);font-weight:700}
 
 /* EMAIL CATEGORIES */
@@ -196,13 +196,13 @@ tr:hover td{background:var(--s2)}
 /* WEEK DRAG */
 .week-cell-drop.drag-over{background:#dbeafe !important;border:2px dashed var(--blue) !important}
 
-.calcel{min-height:88px;border-right:1px solid var(--border);border-bottom:1px solid var(--border);padding:7px;background:var(--surface)}
+.calcel{aspect-ratio:1;overflow-y:auto;border-right:1px solid var(--border);border-bottom:1px solid var(--border);padding:7px;background:var(--surface)}
 .calcel:nth-child(7n){border-right:none}
 .calcel.om{background:var(--s2);opacity:.5}
 .calcel.tod{background:#e8f3fd}
 .caldn{font-size:11px;font-family:var(--mono);color:var(--t2);margin-bottom:4px;font-weight:600}
 .calcel.tod .caldn{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;background:var(--blue);color:#fff;border-radius:50%;font-weight:800;margin-bottom:4px}
-.calchip{font-size:10px;padding:2px 6px;border-radius:5px;margin-bottom:2px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;font-weight:700;display:block}
+.calchip{font-size:10px;padding:2px 6px;border-radius:5px;margin-bottom:2px;cursor:pointer;white-space:normal;word-break:break-word;line-height:1.3;max-width:100%;font-weight:700;display:block}
 .calmore{font-size:10px;color:var(--blue);font-weight:700;cursor:pointer}
 
 /* IMPORT */
@@ -1577,12 +1577,11 @@ function renderMonthCal(){
     h+=`<div class="calcel${isT?' tod':''}" data-date="${ds}"
       ondragover="calDragOver(event,this)" ondragleave="calDragLeave(this)" ondrop="calDrop(event,'${ds}')">
       <div class="caldn">${d}</div>
-      ${dt.slice(0,4).map(t=>`<a class="calchip" style="${chipSt(t)}"
+      ${dt.map(t=>`<a class="calchip" style="${chipSt(t)}"
         draggable="true"
         ondragstart="calDragStart(event,'${t.id}')"
         ondragend="calDragEnd(event)"
         onclick="if(!window._dragged)openDetail('${t.id}');window._dragged=false">${!t.assignee?'🚩':ini(t.assignee)} ${esc(t.title)}</a>`).join('')}
-      ${dt.length>4?`<div class="calmore">+${dt.length-4} more</div>`:''}
     </div>`;
   }
   h+=`</div>`;
